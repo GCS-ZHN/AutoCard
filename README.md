@@ -33,6 +33,12 @@
 ## shell脚本
 在shell环境（linux终端），可以用`startup.sh`和`shutdown.sh`启动或关闭程序，采用nohup形式后台运行。注意shell脚本要与jar包和config放在一个目录下。
 
+`bash startup.sh --name=XXXX --password=XXXX "'--app.autoCard.cronExpression=0 0 6 * * ? *'"`
+
+`bash shutdown.sh`
+
+值得注意的是，cron表达式参数由于是空格分开，需要两重引号，因此建议通过配置文件配置参数。
+
 ## 额外参数
 - --app.autoCard.cronExpresssion
 
@@ -52,3 +58,6 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 
 ## 注意
 若打卡题目被更新，请先手动打卡一次。本项目仅供学习参考，防控疫情，人人有责，请务必如实上报自身信息。
+
+## 反馈
+任何使用问题，欢迎通过邮箱**zhang.h.n@foxmail.com**交流。
