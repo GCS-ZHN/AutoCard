@@ -19,6 +19,11 @@ import org.gcszhn.autocard.service.ClockinService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * 打卡服务测试
+ * @author Zhang.H.N
+ * @version 1.0
+ */
 public class AutoClockinTest extends AppTest {
     @Autowired
     ClockinService autoCard;

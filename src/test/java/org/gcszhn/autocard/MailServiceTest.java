@@ -19,6 +19,11 @@ import org.gcszhn.autocard.service.MailService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * 邮件服务测试
+ * @author Zhang.H.N
+ * @version 1.0
+ */
 public class MailServiceTest extends AppTest {
     @Autowired
     MailService mailService;

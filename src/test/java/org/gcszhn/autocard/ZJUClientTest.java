@@ -15,22 +15,21 @@
  */
 package org.gcszhn.autocard;
 
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-
 import org.apache.http.NameValuePair;
-
 import org.apache.http.message.BasicNameValuePair;
 import org.gcszhn.autocard.service.ZJUClientService;
-import org.gcszhn.autocard.utils.RSAEncryptUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * 浙大通行证客户端测试
+ * @author Zhang.H.N
+ * @version 1.0
+ */
 public class ZJUClientTest extends AppTest {
     @Autowired
     ZJUClientService client;

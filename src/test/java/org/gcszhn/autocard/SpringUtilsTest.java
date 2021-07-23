@@ -22,6 +22,11 @@ import org.gcszhn.autocard.service.ZJUClientService;
 import org.gcszhn.autocard.utils.SpringUtils;
 import org.junit.Test;
 
+/**
+ * Spring工具测试
+ * @author Zhang.H.N
+ * @version 1.0
+ */
 public class SpringUtilsTest extends AppTest {
     @Test
     public void protoTypeTest() {

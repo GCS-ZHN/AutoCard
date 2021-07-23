@@ -20,6 +20,11 @@ import org.gcszhn.autocard.service.JobService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * 定时任务服务测试
+ * @author Zhang.H.N
+ * @version 1.0
+ */
 public class JobServiceTest extends AppTest {
     @Autowired
     JobService jobService;

@@ -21,6 +21,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * App统一的单元测试抽象类
+ * @author Zhang.H.N
+ * @version 1.0
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
