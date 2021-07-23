@@ -19,5 +19,19 @@
 *.tar.gz
 *.rar
 
+# release and build file
+release/
+target/
+
+# hidden file
+.vscode/
+.settings/
+.factorypath
+.classpath
+.project
+
+# cache file
+*.cache
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

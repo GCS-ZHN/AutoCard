@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="console_err" target="SYSTEM_ERR">
+            <!--Only accept error & fatal -->
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+            <PatternLayout pattern="[%d{yyyyMMdd HH:mm:ss}] [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+        <Console name="console_out" target="SYSTEM_OUT">
+            <!--Not accept error & fatal -->
+            <ThresholdFilter level="error" onMatch="DENY" onMismatch="ACCEPT" />
+            <PatternLayout pattern="[%d{yyyyMMdd HH:mm:ss}] [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+        <File name="file" fileName="app.log">
+            <PatternLayout pattern="[%d{yyyyMMdd HH:mm:ss}] [%t] %-5level %logger{36} - %msg%n" />
+        </File>
+    </Appenders>
+    <Loggers>
+        <!--log level at least is 'info'-->
+        <Root level="info">
+            <AppenderRef ref="console_err"/>
+            <AppenderRef ref="console_out"/>
+            <AppenderRef ref="file"/>
+        </Root>
+        <!--Logger level="warn" name="warn" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Logger-->
+    </Loggers>
+</Configuration>
