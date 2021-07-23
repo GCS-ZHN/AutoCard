@@ -1,4 +1,4 @@
-<h1 style="text-align: center">IDEonline后台管理系统</h1>
+<h1 style="text-align: center">浙江大学自动健康打卡AutoCard</h1>
 <div style="text-align: center">
 
 ![AUR](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)
