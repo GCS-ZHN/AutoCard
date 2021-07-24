@@ -4,7 +4,7 @@
 
     <groupId>org.gcszhn</groupId>
     <artifactId>autocard</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <name>Auto Heathy Report for Zhejiang University</name>
@@ -163,7 +163,7 @@
                 <configuration>
                     <quiet>true</quiet>
                     <!--HEADER文件-->
-                    <header>${project.basedir}/license.temp</header>
+                    <header>${project.basedir}/templete/license.temp</header>
                     <!--排除文件-->
                     <excludes>
                         <exclude>**/*.properties</exclude>

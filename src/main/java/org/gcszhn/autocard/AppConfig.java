@@ -46,8 +46,8 @@ public class AppConfig {
      */
     @Autowired
     public void setDefaultUser(Environment environment) {
-        defaultUserName = environment.getProperty("username");
-        defaultPassword = environment.getProperty("password");
+        defaultUserName = environment.getProperty("zjupassport.user");
+        defaultPassword = environment.getProperty("zjupassport.password");
         if (defaultPassword==null||defaultUserName==null) {
             LogUtils.printMessage("No user set", LogUtils.Level.ERROR);
             App.exit(-1);

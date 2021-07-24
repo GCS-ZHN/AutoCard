@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+logging:
+    config: config/log4j2.xml
 app:
   zjuClient:
     pubkeyUrl: https://zjuam.zju.edu.cn/cas/v2/getPubKey

@@ -22,9 +22,5 @@
             <AppenderRef ref="console_out"/>
             <AppenderRef ref="file"/>
         </Root>
-        <!--Logger level="warn" name="warn" additivity="false">
-            <AppenderRef ref="console"/>
-            <AppenderRef ref="file"/>
-        </Logger-->
     </Loggers>
 </Configuration>
