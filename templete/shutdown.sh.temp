@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 ROOT=`dirname $0`
 if [ -f $ROOT/app.pid ];then
     cat $ROOT/app.pid|xargs kill
