@@ -95,7 +95,7 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 该参数为SMTP服务端口，默认为994，具体看SMTP邮件服务提供商。
 
 ## 自己打包
-若用户需要使用低版本如jdk 1.8，需要在对应版本（安装对应版本jdk并修改pom.xml中版本信息）下重新编译打包maven项目（要求用户得安装了[maven](https://maven.apache.org/download.cgi)），建议配置maven工具的镜像为阿里云（这样首次打包时下载依赖库会快一点，[阿里云程](https://maven.aliyun.com/mvn/guide)）。
+若用户需要使用低版本如jdk 1.8，需要在对应版本（安装对应版本jdk并修改pom.xml中版本信息）下重新编译打包maven项目（要求用户得安装了[maven](https://maven.apache.org/download.cgi)），建议配置maven工具的镜像为阿里云（这样首次打包时下载依赖库会快一点，[阿里云教程](https://maven.aliyun.com/mvn/guide)）。
 
 1. 克隆或下载本项目
 
