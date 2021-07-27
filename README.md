@@ -120,6 +120,12 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 
 根据平台，运行打包脚本。会产生一个release子文件夹。不过个人没有macOS，故没有编写macOS打包脚本，用户可以直接执行`mvn package spring-boot:repackage`打包生成jar文件，然后按照前面的目录结构放置。
 
+## 可能的问题
+`java.lang.reflect.InaccessibleObjectException`
+
+这是与java模块化有关的问题，采用java 16等很新的java版本可能会抛出，解答详细请看[相关issue](https://gitee.com/GCSZHN/AutoCard/issues/I42IF9)。修改时请将startup.sh中的java命令一并修改。
+
+
 ## 注意
 若打卡题目被更新，请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
