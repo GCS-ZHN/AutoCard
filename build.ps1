@@ -15,8 +15,8 @@ if ((Get-ChildItem target/*.jar) -match "$appName-(.+?).jar") {
     mkdir $targetDir
     Copy-Item -Path target/autocard-$version.jar -Destination $targetDir
     Copy-Item templete/shutdown.sh.temp $targetDir/shutdown.sh
+    Copy-Item templete/startup.sh.temp $targetDir/startup.sh
     Copy-Item -Recurse config $targetDir/config
-    (Get-Content templete/startup.sh.temp)|ForEach-Object{$_ -replace 'VERSION',$version}|Out-File $targetDir/startup.sh
     Compress-Archive -LiteralPath $targetDir -DestinationPath "$targetDir.zip"
 }
 

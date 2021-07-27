@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 /**
  * 健康打卡实现类
  * @author Zhang.H.N
- * @version 1.0
+ * @version 1.1
  */
 @Scope("prototype")
 @Service
@@ -53,20 +53,24 @@ public class ClockinService implements Closeable {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     /**
      * 用于访问打卡页面
+     * @param username 用户名
+     * @param password 密码
      * @return 打卡页面HTML源码
      */
-    public String getPage() {
-        if(client.login()) {
+    public String getPage(String username, String password) {
+        if(client.login(username, password)) {
             return client.doGet(reportUrl);
         }
         return null;
     }
     /**
      * 用于提取已有提交信息
+     * @param username 用户名
+     * @param password 密码
      * @return 已有提交信息组成的键值对列表
      */
-    public ArrayList<NameValuePair> getOldInfo() {
-        String page = getPage();
+    public ArrayList<NameValuePair> getOldInfo(String username, String password) {
+        String page = getPage(username, password);
         if (page==null) return null;
         ArrayList<NameValuePair> res = new ArrayList<>();
         try {
@@ -90,10 +94,13 @@ public class ClockinService implements Closeable {
     }
     /**
      * 用于提交打卡信息
+     * @param username 用户名
+     * @param password 密码
+     * @return 打卡成败
      */
-    public boolean submit() {
-        LogUtils.printMessage("Try to submit info...", LogUtils.Level.INFO);
-        ArrayList<NameValuePair> info = getOldInfo();
+    public boolean submit(String username, String password) {
+        LogUtils.printMessage("Try to submit for " + username);
+        ArrayList<NameValuePair> info = getOldInfo(username, password);
         if (info==null) {
             LogUtils.printMessage("Submit failed", LogUtils.Level.ERROR);
             return false;

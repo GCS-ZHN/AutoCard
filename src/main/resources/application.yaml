@@ -43,8 +43,4 @@ mail:
         class: com.sun.mail.imap.IMAPSSLStore
         port: 993
         host: imap.zju.edu.cn
-    auth:
-        username: null
-        nickname: AutoCard
-        password: null
     debug: false

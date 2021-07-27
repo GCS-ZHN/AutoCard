@@ -31,14 +31,18 @@ import org.gcszhn.autocard.utils.RSAEncryptUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 
 
 /**
  * 访问浙大通行证的客户端
  * @author Zhang.H.N
- * @version 1.0
+ * @version 1.1
  */
+@Scope("prototype")
+@Service
 public class ZJUClientService extends HttpClientUtils {
     /**获取公钥n,e值的API */
     @Value("${app.zjuClient.pubkeyUrl}")
@@ -46,17 +50,9 @@ public class ZJUClientService extends HttpClientUtils {
     /**浙大通行证登录页面 */
     @Value("${app.zjuClient.loginUrl}")
     private String loginUrl;
-    /**配置的默认用户名 */
-    private String defaultUserName;
-    /**配置的默认密码 */
-    private String defaultPassword;
     /**是否将cookie缓存至文件 */
     @Value("${app.zjuClient.cookieCached}")
     private boolean cookieCached;
-    public ZJUClientService(String defaultUserName, String defaultPassword) {
-        this.defaultUserName = defaultUserName;
-        this.defaultPassword = defaultPassword;
-    }
     /**
      * 获取RSA公钥的模和幂
      * @return 模、幂的十六进制字符串组
@@ -90,12 +86,6 @@ public class ZJUClientService extends HttpClientUtils {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
         return null;
-    }
-    /**
-     * 登录配置的默认账号
-     */
-    public boolean login() {
-        return login(defaultUserName, defaultPassword);
     }
     /**
      * 登录指定用户

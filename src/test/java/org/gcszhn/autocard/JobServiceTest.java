@@ -31,7 +31,7 @@ public class JobServiceTest extends AppTest {
     @Test
     public void test() throws InterruptedException {
        synchronized(jobService) {
-        jobService.addJob(AutoClockinJob.class);
+        jobService.addJob(AutoClockinJob.class, null, null);
         jobService.start();
         jobService.wait(50000); 
        }

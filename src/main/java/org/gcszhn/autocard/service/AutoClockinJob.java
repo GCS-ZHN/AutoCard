@@ -24,7 +24,7 @@ import org.quartz.JobExecutionException;
 /**
  * 自动打卡的定时任务
  * @author Zhang.H.N
- * @version 1.0
+ * @version 1.1
  */
 public class AutoClockinJob implements Job {
     @Override
@@ -34,7 +34,14 @@ public class AutoClockinJob implements Job {
         int change = 3;
         try (ClockinService cardService = SpringUtils.getBean(ClockinService.class)) {
             MailService mailService = SpringUtils.getBean(MailService.class);
-            while (change>0 && !cardService.submit()) {
+            String username = context.getMergedJobDataMap().getString("username");
+            String password = context.getMergedJobDataMap().getString("password");
+            String mail = context.getMergedJobDataMap().getString("mail");
+            if (username==null||password==null) 
+                throw new NullPointerException("Empty username or password of zjupassport");
+
+            //打卡
+            while (change>0 && !cardService.submit(username, password)) {
                 int delay = (4-change) * 10;
                 LogUtils.printMessage("Try to submit again after sleeping "+delay+"s ...", 
                     LogUtils.Level.ERROR);
@@ -42,20 +49,24 @@ public class AutoClockinJob implements Job {
                 change--;
             }
             if (change==0) {
-                context.getScheduler().shutdown();
-                LogUtils.printMessage("Quit scheduler for submit failed 3 times", 
+                //context.getScheduler().shutdown();
+                LogUtils.printMessage("Submit failed 3 times for " + username, 
                     LogUtils.Level.ERROR);
             }
-            if (mailService.isServiceAvailable()) {
+
+            //邮件通知
+            if (mailService.isServiceAvailable() && mail != null) {
                 if (change>0) {
-                    mailService.sendMySelfMail(
+                    mailService.sendMail(
+                        mail,
                         "健康打卡成功通知", 
-                        "今日健康打卡成功，特此通知。",
+                        username+ ", 今日健康打卡成功，特此通知。",
                         "text/html;charset=utf-8");
                 } else {
-                    mailService.sendMySelfMail(
+                    mailService.sendMail(
+                        mail,
                         "健康打卡失败通知", 
-                        "今日健康打卡失败，请登录服务器查看打卡日志。",
+                        username+ ", 今日健康打卡失败，请登录服务器查看打卡日志。",
                         "text/html;charset=utf-8");
                 }
             }

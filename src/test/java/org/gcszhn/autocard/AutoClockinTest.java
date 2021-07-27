@@ -29,14 +29,14 @@ public class AutoClockinTest extends AppTest {
     ClockinService autoCard;
     @Test
     public void getPageTest() {
-        System.out.println(autoCard.getPage());
+        System.out.println(autoCard.getPage("***", "***"));
     }
     @Test
     public void getOldInfoTest() {
-        System.out.println(autoCard.getOldInfo());
+        System.out.println(autoCard.getOldInfo("***", "***"));
     }
     @Test
     public void submitReportTest() {
-        autoCard.submit();
+        autoCard.submit("***", "***");
     }
 }

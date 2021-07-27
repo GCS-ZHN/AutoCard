@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 ROOT=`dirname $0`
 cd $ROOT
-nohup java -jar autocard-VERSION.jar $@ 2>&1 1>/dev/null &
+nohup java -jar autocard-*.jar $@ 2>&1 1>/dev/null &

@@ -23,6 +23,7 @@ import org.gcszhn.autocard.utils.LogUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -30,7 +31,7 @@ import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -40,9 +41,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobService implements Closeable {
-    /**配置的默认任务定时cron表达式 */
-    @Value("${app.autoCard.cronExpression}")
-    private String defaultCronExpression;
     /**任务调度器 */
     private Scheduler scheduler;
     /**初始化任务服务，创建任务调度器 */
@@ -53,27 +51,30 @@ public class JobService implements Closeable {
     /**
      * 添加任务，并采用默认定时策略
      * @param jobClass Job接口实现类
+     * @param cronExpression cron表达式定时
+     * @param jobDataMap 任务参数
      */
-    public void addJob(Class<? extends Job> jobClass) {
-        addJob(jobClass, defaultCronExpression, new Date());
-        LogUtils.printMessage("Timed job injected with default cron expression: "+ defaultCronExpression);
+    public void addJob(Class<? extends Job> jobClass,String cronExpression, JobDataMap jobDataMap) {
+        addJob(jobClass, cronExpression, new Date(), jobDataMap);
     }
     /**
      * 添加指定定时策略的任务
      * @param jobClass Job接口实现类
      * @param cronExpression cron表达式，决定定时规律
      * @param triggerStartTime 定时启动时间，指的是从什么时候开始定时，并非定时任务执行的时间
+     * @param jobDataMap 任务参数
      */
-    public void addJob(Class<? extends Job> jobClass, String cronExpression, Date triggerStartTime) {
+    public void addJob(Class<? extends Job> jobClass, String cronExpression, Date triggerStartTime, JobDataMap jobDataMap) {
         try {
             JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                .usingJobData(jobDataMap)
                 .build();
             Trigger trigger = TriggerBuilder.newTrigger()
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
                 .startAt(triggerStartTime)
                 .build();
             scheduler.scheduleJob(jobDetail, trigger);
-            LogUtils.printMessage("Timed job has been injected");
+            LogUtils.printMessage("Timed job has been injected with cron expression " + cronExpression);
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }

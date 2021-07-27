@@ -15,6 +15,7 @@ fi
 mkdir $targetDir
 cp target/autocard-$version.jar $targetDir
 cp templete/shutdown.sh.temp $targetDir/shutdown.sh
+cp templete/startup.sh.temp $targetDir/startup.sh
 cp -R config $targetDir/config
 cat templete/startup.sh.temp|sed -r "s/VERSION/$version/g" > $targetDir/startup.sh
 zip -r $targetDir.zip $targetDir

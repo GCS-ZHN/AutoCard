@@ -9,7 +9,7 @@
 </div>
 
 ## 项目概述
-本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。
+本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置。
 
 ## 基本使用步骤
 1. **STEP 1 用来跑程序的设备**
@@ -36,21 +36,40 @@
         ----startup.sh                          ## 在linux下，用于启动java程序的shell脚本
         ----shutdown.sh                         ## 在linux下，用于关闭java程序的shell脚本
         ----config/
-        ------application.properties            ## 用户配置，如账号密码等
+        ------application.json                  ## 用户配置，如账号密码等
         ------log4j2.xml                        ## 日志配置，不用修改
 
-4. **STEP 4 修改application.properties**
+4. **STEP 4 修改application.json**
 
-用任意文本编辑器打开config目录下的application.properties，配置下列信息（即把文件里面的*号内容替换，#号开头的行是注释，可以直接删除）。
+用任意文本编辑器打开config目录下的application.json，配置下列信息。
 
-        zjupassport.username=学工号
-        zjupassport.password=密码
-        mail.auth.username=邮箱
-        mail.auth.password=邮箱密码
+        {
+        "mail":{                          /配置发送邮件通知的邮箱
+                "username":"***",         //用来发送邮件的账号
+                "nickname":"AutoCard",    //发件名
+                "password":"***",         //发件邮箱密码
+                "smtp":"smtp.zju.edu.cn", //SMTP邮件服务运营商服务器域名，默认浙大邮箱
+                "port":994                //SMTP邮件服务端口
+        },
+        "jobs":[                          //配置多个打卡账号
+                {
+                "username":"***",         //打卡的通行证账号1，即学工号
+                "password":"***",         //对应登录密码
+                "mail":"***",             //发送打卡结果的收件邮箱
+                "cron":"0 0 0 * * ? *"    //cron表达式定时，示例为每天00:00:00
+                },
+                {
+                "username":"***",         //打卡的通行证账号2
+                "password":"***",         //对应登录密码
+                "mail":"***",             //发送打卡结果的收件邮箱
+                "cron":"0 0 0 * * ? *"    //cron表达式定时，示例为每天00:00:00
+                }
+        ]
+        }
 
-邮箱用于打卡的通知，默认使用浙大邮箱，否则需要`mail.smtp.host`和`mail.smtp.port`参数配置为指定第三方邮箱如QQ邮箱的配置。若不配置邮箱信息，将不会邮件提醒。
+邮箱用于打卡的通知，默认使用浙大邮箱，否则需要`mail.smtp`和`mail.port`参数配置为指定第三方邮箱如QQ邮箱的配置。若不配置邮箱信息，将不会邮件提醒。
 
-5. **STEP 5 运行程序**
+1. **STEP 5 运行程序**
 
 需要通过命令行来运行程序，在Windows下，常见的命令行是cmd和powershell，打开方式“WIN + R”，输入"cmd"或"powershell"，确定即可。linux服务器打开即是shell命令行页面（To小白：如何连接Linux服务器请自行百度一下，拥有服务器用户名、密码、IP、端口，通过ssh客户端访问）。
 
@@ -62,10 +81,6 @@
         ....                         # 会弹出nohup的信息，直接enter下去就好
 
 对于方式一，关闭命令行页面即为关闭程序。方式二请通过`bash shutdown.sh`关闭程序。还是推荐服务器上，用方式二运行。
-
-此外，可以通过命令行参数直接指定用户配置，该方法会覆盖配置文件中的相同配置。例如，参数名同配置文件中参数名（但需要“--”开头）。不建议长期使用，可以用来临时测试。
-
-        java -jar autocard-XXX.jar --zjupassport.name=XXXXX --zjupassport.password=XXXXX
 
 通过方式一，运行正常可以看到下列日志输出屏幕。不论哪种方式，相同的程序日志会在`app.log`文件中看到。最后日志显示JVM running。（等到了打卡时间，日志会继续输出）
 
@@ -84,15 +99,7 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 
 该参数默认为false，设置为true则会启动cookie缓存。
 
-- mail.smtp.host
-
-该参数修改了SMTP服务器主机域名，默认采用浙大服务器smtp.zju.edu.cn。在需要使用QQ邮箱等其他邮箱是需要配套修改设定，例如
-
-        mail.smtp.host=smtp.qq.com
-
-- mail.smtp.port
-  
-该参数为SMTP服务端口，默认为994，具体看SMTP邮件服务提供商。
+        java -jar autocard-1.3.jar --app.zjuClient.cookieCached=true
 
 ## 自己打包
 若用户需要使用低版本如jdk 1.8，需要在对应版本（安装对应版本jdk并修改pom.xml中版本信息）下重新编译打包maven项目（要求用户得安装了[maven](https://maven.apache.org/download.cgi)），建议配置maven工具的镜像为阿里云（这样首次打包时下载依赖库会快一点，[阿里云教程](https://maven.aliyun.com/mvn/guide)）。

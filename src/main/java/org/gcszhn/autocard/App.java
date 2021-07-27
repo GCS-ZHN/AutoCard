@@ -18,21 +18,32 @@ package org.gcszhn.autocard;
 
 import java.io.File;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
 import org.gcszhn.autocard.service.AutoClockinJob;
 import org.gcszhn.autocard.service.JobService;
 import org.gcszhn.autocard.utils.LogUtils;
-
+import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.system.ApplicationPidFileWriter;
 import org.springframework.context.ConfigurableApplicationContext;
+
 
 /**
  * App入口
  */
 @SpringBootApplication
 public class App {
+    /**配置的默认任务定时cron表达式 */
+    @Value("${app.autoCard.cronExpression}")
+    private String defaultCronExpression;
+    /**APP配置 */
+    @Autowired
+    AppConfig appConfig;
     /**spring内容 */
     private static ConfigurableApplicationContext applicationContext;
     /**工作目录 */
@@ -44,8 +55,17 @@ public class App {
     @Autowired
     public void start(JobService jobService) {
         try {
-            jobService.addJob(AutoClockinJob.class);
-            jobService.start();
+            JSONArray jsonArray =  appConfig.getUserJobs();
+            jsonArray.forEach((Object obj)->{
+                if (obj instanceof JSONObject) {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    JobDataMap jobDataMap = new JobDataMap(jsonObject);
+                    String cron = jsonObject.getString("cron");
+                    jobService.addJob(AutoClockinJob.class, cron==null?defaultCronExpression:cron, jobDataMap); 
+                }
+            });
+            LogUtils.printMessage(jsonArray.size()+" user job added");
+            if (!jsonArray.isEmpty()) jobService.start();
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }

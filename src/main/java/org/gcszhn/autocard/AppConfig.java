@@ -15,52 +15,76 @@
  */
 package org.gcszhn.autocard;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.gcszhn.autocard.service.ZJUClientService;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
+import org.gcszhn.autocard.service.MailService;
 import org.gcszhn.autocard.utils.LogUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.core.env.Environment;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 
 /**
  * App通用配置和组件注册
  * @author Zhang.H.N
- * @version 1.0
+ * @version 1.1
  */
 @Configuration
 public class AppConfig {
     /**默认字符集 */
     public static final Charset APP_CHARSET = StandardCharsets.UTF_8;
-    /**默认用户名 */
-    private String defaultUserName;
-    /**默认密码 */
-    private String defaultPassword;
-    /**
-     * 配置默认用户名与密码
-     * @param environment spring环境
-     */
-    @Autowired
-    public void setDefaultUser(Environment environment) {
-        defaultUserName = environment.getProperty("zjupassport.user");
-        defaultPassword = environment.getProperty("zjupassport.password");
-        if (defaultPassword==null||defaultUserName==null) {
-            LogUtils.printMessage("No user set", LogUtils.Level.ERROR);
-            App.exit(-1);
-        }
-        LogUtils.printMessage("User is "+defaultUserName, LogUtils.Level.INFO);
-        LogUtils.printMessage("Password is "+defaultUserName, LogUtils.Level.DEBUG);
+    /**JSON配置文件 */
+    private JSONObject jsonConfig;
+    public AppConfig() {
+        loadJSONConfig();
     }
     /**
-     * 注册ZJUClientService的Bean
+     * 初始化json配置
      */
-    @Scope("prototype")
+    public void loadJSONConfig() {
+        try(FileInputStream fis = new FileInputStream("config/application.json")) {
+            jsonConfig = JSONObject.parseObject(new String(fis.readAllBytes(), APP_CHARSET));
+            LogUtils.printMessage("User config loaded");
+         } catch (IOException e) {
+             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+         }
+    }
+    /**
+     * 注册邮件服务
+     * @param env spring环境
+     * @return 邮件服务实例
+     */
     @Bean
-    public ZJUClientService addZjuClientService() {
-        return new ZJUClientService(defaultUserName, defaultPassword);
+    public MailService registerMailService(ConfigurableEnvironment env) {
+        JSONObject mailConfig = jsonConfig.getJSONObject("mail");
+        MailService mailService = new MailService();
+        if (mailConfig != null){
+            String nickname = mailConfig.getString("nickname");
+            Object port = mailConfig.get("port");
+
+            mailService.setNickname(nickname==null?"AutoCard":nickname);
+            mailService.setUsername(mailConfig.getString("username"));
+            mailService.setPassword(mailConfig.getString("password"));
+            mailService.setSmtpHost(mailConfig.getString("smtp"));
+            if (port instanceof String||port instanceof Integer) {
+                mailService.setSmtpPort(String.valueOf(port));
+            }
+        }
+        mailService.setEnvironment(env);
+        return mailService;
+    }
+    /**
+     * 返回用户任务
+     * @return 用户任务
+     */
+    public JSONArray getUserJobs() {
+        JSONArray jsonArray = jsonConfig.getJSONArray("jobs");
+        return jsonArray==null?new JSONArray():jsonArray;
     }
 }

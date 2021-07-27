@@ -29,6 +29,6 @@ public class MailServiceTest extends AppTest {
     MailService mailService;
     @Test
     public void sendTest() {
-        mailService.sendMySelfMail("test", "test", "text/html;charset=utf-8");
+        mailService.sendMail("zhanghn@zju.edu.cn","test", "test", "text/html;charset=utf-8");
     }
 }
