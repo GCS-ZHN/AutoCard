@@ -17,7 +17,7 @@
     </Appenders>
     <Loggers>
         <!--log level at least is 'info'-->
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="console_err"/>
             <AppenderRef ref="console_out"/>
             <AppenderRef ref="file"/>

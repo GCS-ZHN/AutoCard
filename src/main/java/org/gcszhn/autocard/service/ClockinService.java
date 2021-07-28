@@ -26,7 +26,6 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.gcszhn.autocard.AppConfig;
 import org.gcszhn.autocard.utils.LogUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,9 +49,6 @@ public class ClockinService implements Closeable {
     /**浙大通行证客户端 */
     @Autowired
     private ZJUClientService client;
-    /**应用配置 */
-    @Autowired
-    private AppConfig appConfig;
     /**时间格式化 */
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     /**
@@ -78,13 +74,9 @@ public class ClockinService implements Closeable {
         if (page==null) return null;
         ArrayList<NameValuePair> res = new ArrayList<>();
         try {
-            Pattern pattern = Pattern.compile("oldInfo: (\\{.+\\}).+hasFlag: '(\\d)'", Pattern.DOTALL);
+            Pattern pattern = Pattern.compile("oldInfo: (\\{.+\\})");
             Matcher matcher = pattern.matcher(page);
             if (matcher.find()) {
-                if (matcher.group(2).equals("1") && !appConfig.isTestMode()) {
-                    res.add(new BasicNameValuePair("hasFlag", "1"));
-                    return res;
-                }
                 JSONObject oldInfoJson = JSONObject.parseObject(matcher.group(1));
                 oldInfoJson.forEach((String name, Object value)->{
                     switch (name) {
@@ -117,13 +109,18 @@ public class ClockinService implements Closeable {
         if (info==null) {
             LogUtils.printMessage("Submit failed", LogUtils.Level.ERROR);
             return -1;
-        } else if (info.size()==1 && info.get(0).getName().equals("hasFlag")) {
-            LogUtils.printMessage("You has check in today");
-            return 1;
         }
-        client.doPost(submitUrl, info);
+        JSONObject resp = JSONObject.parseObject(client.doPost(submitUrl, info));
+        int status = resp.getIntValue("e");
+        switch(status) {
+            case 0:{LogUtils.printMessage("Check in successfully");break;}
+            case 1:{LogUtils.printMessage("You has checked in currently");break;}
+            default:{
+                LogUtils.printMessage(resp.getString("m"), LogUtils.Level.ERROR);
+            }
+        }
         LogUtils.printMessage("Finish info submit...", LogUtils.Level.INFO);
-        return 0;
+        return status;
     }
     @Override
     public void close() {

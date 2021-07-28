@@ -20,5 +20,5 @@
             "cron":"0 10 0 * * ? *"
         }
     ],
-    "testmode":false
+    "testmode":true
 }
