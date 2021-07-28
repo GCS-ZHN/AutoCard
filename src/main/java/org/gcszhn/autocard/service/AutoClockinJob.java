@@ -41,7 +41,8 @@ public class AutoClockinJob implements Job {
                 throw new NullPointerException("Empty username or password of zjupassport");
 
             //打卡
-            while (change>0 && !cardService.submit(username, password)) {
+            int status = -1;
+            while (change>0 && (status = cardService.submit(username, password))==-1) {
                 int delay = (4-change) * 10;
                 LogUtils.printMessage("Try to submit again after sleeping "+delay+"s ...", 
                     LogUtils.Level.ERROR);
@@ -49,14 +50,13 @@ public class AutoClockinJob implements Job {
                 change--;
             }
             if (change==0) {
-                //context.getScheduler().shutdown();
                 LogUtils.printMessage("Submit failed 3 times for " + username, 
                     LogUtils.Level.ERROR);
             }
 
             //邮件通知
-            if (mailService.isServiceAvailable() && mail != null) {
-                if (change>0) {
+            if (mailService.isServiceAvailable() && mail != null && status < 1) {
+                if (status==0) {
                     mailService.sendMail(
                         mail,
                         "健康打卡成功通知", 

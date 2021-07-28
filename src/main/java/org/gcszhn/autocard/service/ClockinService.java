@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.gcszhn.autocard.AppConfig;
 import org.gcszhn.autocard.utils.LogUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,9 @@ public class ClockinService implements Closeable {
     /**浙大通行证客户端 */
     @Autowired
     private ZJUClientService client;
+    /**应用配置 */
+    @Autowired
+    private AppConfig appConfig;
     /**时间格式化 */
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     /**
@@ -74,9 +78,13 @@ public class ClockinService implements Closeable {
         if (page==null) return null;
         ArrayList<NameValuePair> res = new ArrayList<>();
         try {
-            Pattern pattern = Pattern.compile("oldInfo: (\\{.+\\})");
+            Pattern pattern = Pattern.compile("oldInfo: (\\{.+\\}).+hasFlag: '(\\d)'", Pattern.DOTALL);
             Matcher matcher = pattern.matcher(page);
             if (matcher.find()) {
+                if (matcher.group(2).equals("1") && !appConfig.isTestMode()) {
+                    res.add(new BasicNameValuePair("hasFlag", "1"));
+                    return res;
+                }
                 JSONObject oldInfoJson = JSONObject.parseObject(matcher.group(1));
                 oldInfoJson.forEach((String name, Object value)->{
                     switch (name) {
@@ -86,6 +94,8 @@ public class ClockinService implements Closeable {
 
                     res.add(new BasicNameValuePair(name, String.valueOf(value)));
                 });
+            } else {
+                return null;
             }
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
@@ -96,18 +106,24 @@ public class ClockinService implements Closeable {
      * 用于提交打卡信息
      * @param username 用户名
      * @param password 密码
-     * @return 打卡成败
+     * @return 打卡状态
+     *  0   打卡成功
+     *  1   今日已经打卡
+     * -1   打卡失败
      */
-    public boolean submit(String username, String password) {
+    public int submit(String username, String password) {
         LogUtils.printMessage("Try to submit for " + username);
         ArrayList<NameValuePair> info = getOldInfo(username, password);
         if (info==null) {
             LogUtils.printMessage("Submit failed", LogUtils.Level.ERROR);
-            return false;
+            return -1;
+        } else if (info.size()==1 && info.get(0).getName().equals("hasFlag")) {
+            LogUtils.printMessage("You has check in today");
+            return 1;
         }
         client.doPost(submitUrl, info);
         LogUtils.printMessage("Finish info submit...", LogUtils.Level.INFO);
-        return true;
+        return 0;
     }
     @Override
     public void close() {

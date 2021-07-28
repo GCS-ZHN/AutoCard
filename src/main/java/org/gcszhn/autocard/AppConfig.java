@@ -29,6 +29,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 
+import lombok.Getter;
+
 
 /**
  * App通用配置和组件注册
@@ -41,8 +43,12 @@ public class AppConfig {
     public static final Charset APP_CHARSET = StandardCharsets.UTF_8;
     /**JSON配置文件 */
     private JSONObject jsonConfig;
+    /**是否为测试模式 */
+    private @Getter boolean testMode = false;
     public AppConfig() {
         loadJSONConfig();
+        testMode = jsonConfig.getBooleanValue("testmode");
+        LogUtils.printMessage("Test mode is " + testMode, LogUtils.Level.DEBUG);
     }
     /**
      * 初始化json配置
@@ -53,6 +59,7 @@ public class AppConfig {
             LogUtils.printMessage("User config loaded");
          } catch (IOException e) {
              LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+             App.exit(-1);
          }
     }
     /**
