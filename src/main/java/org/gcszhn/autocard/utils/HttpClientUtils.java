@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
@@ -39,7 +40,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
-
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.gcszhn.autocard.App;
@@ -51,13 +51,15 @@ import lombok.Setter;
 /**
  * 通用Http客户端工具
  * @author Zhang.H.N
- * @version 1.0
+ * @version 1.2
  */
 public class HttpClientUtils implements Closeable {
     /**User-Agent请求头 */
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0";
     /**是否将cookie缓存 */
     private @Setter @Getter boolean cookieCached;
+    /**是否将cookie缓存 */
+    private @Getter boolean redirectsEnabled;
     /**cookie缓存文件 */
     private String cookieFile;
     /**Http客户端 */
@@ -71,13 +73,14 @@ public class HttpClientUtils implements Closeable {
     /**
      * 创建Http客户端实例
      * @param cookieFile cookie文件, null时不缓存
-     * @param redirectsEnabled 是否自动重定向
+     * @param redirectsEnabled 是否自动重定向，仅对GET请求有效，POST等请求需要自行重定向
      * @param maxRedirects 最大重定向次数
      */
     public HttpClientUtils(String cookieFile, boolean redirectsEnabled, int maxRedirects) {
         setCookieCached(cookieFile!=null);
         this.cookieFile = cookieFile;
-        //运行循环重定向但限制循环此时
+        this.redirectsEnabled = redirectsEnabled;
+        //运行循环重定向但限制循环次数，
         RequestConfig config = RequestConfig.custom()
             .setCircularRedirectsAllowed(true)
             .setMaxRedirects(maxRedirects)
@@ -116,7 +119,7 @@ public class HttpClientUtils implements Closeable {
         StatusLine statusLine = response.getStatusLine();
         try {
             if (statusLine.getStatusCode()<400) {
-                return response;
+                return doRedirects(response);
             }
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
@@ -124,19 +127,33 @@ public class HttpClientUtils implements Closeable {
         LogUtils.printMessage(statusLine.toString(), LogUtils.Level.ERROR);
         return null;
     }
+    private CloseableHttpResponse doRedirects(CloseableHttpResponse response) {
+        if (!isRedirectsEnabled()||response==null) return response;
+        try {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 302) {
+                String url = response.getFirstHeader("Location").getValue();
+                if (url!=null) {
+                    response.close();
+                    return doGet(url);
+                }
+            }
+            return response;
+        } catch (Exception e) {
+            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+        }
+        return null;
+    }
     /**
      * 获取响应正文的字符串编码数据
      * @param response 响应实例
-     * @return 请求正文编码字符串
+     * @return 请求正文实体
      */
-    public String getResponseContent(CloseableHttpResponse response) {
+    public HttpEntity getResponseContent(CloseableHttpResponse response) {
         response = isSuccess(response);
         try {
             if (response!=null) {
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    return EntityUtils.toString(entity);
-                }
+                return response.getEntity();
             };
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
@@ -149,7 +166,7 @@ public class HttpClientUtils implements Closeable {
      * @param headers 可选请求头
      * @return 响应实例
      */
-    public CloseableHttpResponse getResponse(HttpUriRequest request, Header... headers) {
+    private CloseableHttpResponse getResponse(HttpUriRequest request, Header... headers) {
         request.setHeaders(headers);
         
         try  {
@@ -163,9 +180,9 @@ public class HttpClientUtils implements Closeable {
      * 无参数的get请求
      * @param url 目标地址
      * @param headers 可选请求头
-     * @return 响应正文的字符串编码
+     * @return 响应
      */
-    public String doGet(String url, Header... headers) {
+    public CloseableHttpResponse doGet(String url, Header... headers) {
         return doGet(url, null, headers);
     }
     /**
@@ -173,16 +190,16 @@ public class HttpClientUtils implements Closeable {
      * @param url 目标地址
      * @param parameters 参数键值对的列表
      * @param headers 可选请求头
-     * @return 响应正文的字符串编码
+     * @return 响应
      */
-    public String doGet(String url, List<NameValuePair> parameters,Header... headers) {
+    public CloseableHttpResponse doGet(String url, List<NameValuePair> parameters,Header... headers) {
         try {
             URIBuilder uriBuilder = new URIBuilder(url, AppConfig.APP_CHARSET);
             if (parameters != null) uriBuilder.setParameters(parameters);
             URI uri = uriBuilder.build();
             HttpGet request = new HttpGet(uri);
             LogUtils.printMessage("Try to get " + uri.toString(), LogUtils.Level.DEBUG);
-            return getResponseContent(getResponse(request, headers));
+            return getResponse(request, headers);
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
@@ -192,9 +209,9 @@ public class HttpClientUtils implements Closeable {
      * 无参数的post请求
      * @param url 目标地址
      * @param headers 可选请求头
-     * @return 响应正文的字符串编码
+     * @return 响应正文
      */
-    public String doPost(String url, Header... headers) {
+    public CloseableHttpResponse doPost(String url, Header... headers) {
         return doPost(url, null, headers);
     }
     /**
@@ -202,9 +219,9 @@ public class HttpClientUtils implements Closeable {
      * @param url 目标地址
      * @param parameters 参数键值对的列表
      * @param headers 可选请求头
-     * @return 响应正文的字符串编码
+     * @return 响应
      */
-    public String doPost(String url, List<NameValuePair> parameters, Header... headers) {
+    public CloseableHttpResponse doPost(String url, List<NameValuePair> parameters, Header... headers) {
         LogUtils.printMessage("Try to post " + url, LogUtils.Level.DEBUG);
         try {
             HttpPost request = new HttpPost(url);
@@ -212,11 +229,91 @@ public class HttpClientUtils implements Closeable {
                 UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, AppConfig.APP_CHARSET);
                 request.setEntity(formEntity);
             }
-            return getResponseContent(getResponse(request, headers));
+            return getResponse(request, headers);
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
         return null;
+    }
+    /**
+     * 无参数get请求获取文本内容
+     * @param url 目标地址
+     * @param headers 请求头
+     * @return 文本
+     */
+    public String doGetText(String url, Header... headers) {
+        return doGetText(url, null, headers);
+    }
+    /**
+     * 带参数get请求获取文本内容
+     * @param url 目标地址
+     * @param parameters 参数列表
+     * @param headers 请求头
+     * @return 文本
+     */
+    public String doGetText(String url, List<NameValuePair> parameters, Header... headers) {
+        return entityToString(getResponseContent(doGet(url, parameters, headers)));
+    }
+    /**
+     * 无参数Post请求获取文本
+     * @param url 目标地址
+     * @param headers 请求头
+     * @return 文本
+     */
+    public String doPostText(String url, Header... headers) {
+        return doPostText(url, null, headers);
+    }
+    /**
+     * 带参数Post请求获取文本
+     * @param url 目标地址
+     * @param parameters 参数列表
+     * @param headers 请求头
+     * @return 文本
+     */
+    public String doPostText(String url, List<NameValuePair> parameters, Header... headers) {
+        return entityToString(getResponseContent(doPost(url, parameters, headers)));
+    }
+    public void doDownload(String filename, String url, Header...headers) {
+        doDownload(filename, url, Methods.GET, headers);
+    }
+    public void doDownload(String filename, String url, Methods methods, Header... headers) {
+        try(FileOutputStream fos = new FileOutputStream(filename)) {
+            HttpEntity entity = null;
+            switch (methods) {
+                case GET:entity=getResponseContent(doGet(url, headers)); break;
+                case POST:entity=getResponseContent(doPost(url, headers)); break;
+                default:throw new UnsupportedOperationException("Only support GET/POST currently");
+            }
+            if (entity!=null) {
+                byte[] buffer = new byte[1024];
+                InputStream inputStream = entity.getContent();
+                int len;
+                while((len=inputStream.read(buffer))!=-1) {
+                    fos.write(buffer, 0, len);
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+        }
+    }
+    /**
+     * 将响应实体编码为字符串，主要用于文本响应解析
+     * @param entity 响应实体
+     * @return 编码为字符串
+     */
+    public String entityToString(HttpEntity entity){
+        try {
+            if (entity != null) {
+                return EntityUtils.toString(entity);
+            }
+        } catch (Exception e) {
+            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+        }
+        return null;
+    }
+    /**方法名称 */
+    public enum Methods {
+        GET, POST, PUT, DELETE, HEAD
     }
     /**
      * 关闭资源时缓存cookie

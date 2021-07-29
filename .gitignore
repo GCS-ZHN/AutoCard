@@ -5,6 +5,9 @@
 *.log
 *.pid
 
+# private
+Grs*java
+
 # BlueJ files
 *.ctxt
 

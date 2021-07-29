@@ -65,6 +65,6 @@ public class ZJUClientTest extends AppTest {
     }
     @Test
     public void loginTest() {
-        client.login("***", "***");
+        client.login("12019018", "zju244220");
     }
 }

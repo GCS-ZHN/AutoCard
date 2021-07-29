@@ -59,7 +59,7 @@ public class ClockinService implements Closeable {
      */
     public String getPage(String username, String password) {
         if(client.login(username, password)) {
-            return client.doGet(reportUrl);
+            return client.doGetText(reportUrl);
         }
         return null;
     }
@@ -110,7 +110,7 @@ public class ClockinService implements Closeable {
             LogUtils.printMessage("Submit failed", LogUtils.Level.ERROR);
             return -1;
         }
-        JSONObject resp = JSONObject.parseObject(client.doPost(submitUrl, info));
+        JSONObject resp = JSONObject.parseObject(client.doPostText(submitUrl, info));
         int status = resp.getIntValue("e");
         switch(status) {
             case 0:{LogUtils.printMessage("Check in successfully");break;}
