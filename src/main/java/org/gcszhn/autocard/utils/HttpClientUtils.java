@@ -127,6 +127,11 @@ public class HttpClientUtils implements Closeable {
         LogUtils.printMessage(statusLine.toString(), LogUtils.Level.ERROR);
         return null;
     }
+    /**
+     * 完成响应的302重定向，对于POST等请求，httpclient无法自动重定向其响应
+     * @param response 未重定向响应
+     * @return 重定向后的响应，若没有重定向，则返回原响应
+     */
     private CloseableHttpResponse doRedirects(CloseableHttpResponse response) {
         if (!isRedirectsEnabled()||response==null) return response;
         try {
