@@ -16,12 +16,12 @@
 package org.gcszhn.autocard;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.gcszhn.autocard.service.ZJUClientService;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,38 +33,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ZJUClientTest extends AppTest {
     @Autowired
     ZJUClientService client;
-
     //ZJUClient是prototpye的bean，IOC容器不负责销毁
     @After
     public void afterTest() throws IOException {
         client.close();
     }
     @Test
-    public void getTest() {
-        System.out.println(client.doGet("https://www.cc98.org/"));;
-    }
-    @Test
-    public void getWithParamTest() {
-        ArrayList<NameValuePair> params = new ArrayList<>(1);
-        params.add(new BasicNameValuePair("wd", "HttpPost和httpclient"));
-        System.out.println(client.doGet("https://www.baidu.com/s", params));
-    }
-    @Test
     public void getPublicKeyTest() {
-        System.out.println(client.getPublicKey());;
+        String[] pub = client.getPublicKey();
+        Assert.assertNotNull(pub);
     }
     @Test
     public void getExecutionTest() {
-        System.out.println(client.getExecution());
+        Assert.assertNotEquals(-1, client.getExecution().getStatus());
     }
-    @Test
-    public void postTest() {
-        ArrayList<NameValuePair> params = new ArrayList<>(1);
-        params.add(new BasicNameValuePair("username", "zhanghn"));
-        System.out.println(client.doPost("https://zjuam.zju.edu.cn/cas/login", params));
-    }
+    /**
+     * 浙大通行证登录测试
+     */
     @Test
     public void loginTest() {
-        client.login("12019018", "zju244220");
+        Assert.assertEquals(false, client.login("dadadada", "dadad"));
+        Assert.assertEquals(true, client.login(trueZjuPassPortUser, trueZjuPassPortPass));
+    }
+    /**
+     * 以研究生教务网为例，测试基于浙大通行证登录第三方
+     */
+    @Test
+    public void loginGrsTest() {
+        String text = client.doGetText("https://grs.zju.edu.cn/cas/login?service=http%3A%2F%2Fgrs.zju.edu.cn%2Fallogene%2Fpage%2Fhome.htm");
+        Document document = Jsoup.parse(text);
+        String href = document.getElementsByTag("fieldset").first().getElementsByTag("a").first().attr("href");
+        if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)){
+            client.doGetText(href);
+            client.doDownload(
+                "test/fig/test.png", 
+                "http://grs.zju.edu.cn/allogene/page/home.htm?pageAction=getPic");
+        }
     }
 }

@@ -22,22 +22,20 @@ import java.util.ArrayList;
 import com.alibaba.fastjson.JSONObject;
 
 import org.apache.http.Consts;
-import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.gcszhn.autocard.AppConfig;
 import org.gcszhn.autocard.utils.HttpClientUtils;
 import org.gcszhn.autocard.utils.LogUtils;
+import org.gcszhn.autocard.utils.LogUtils.Level;
 import org.gcszhn.autocard.utils.RSAEncryptUtils;
+import org.gcszhn.autocard.utils.StatusCode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
-
 
 /**
  * 访问浙大通行证的客户端
@@ -61,34 +59,48 @@ public class ZJUClientService extends HttpClientUtils {
      * @return 模、幂的十六进制字符串组
      */
     public String[] getPublicKey() {
-        LogUtils.printMessage("Try to get modulus, exponent for public key", LogUtils.Level.DEBUG);
+        LogUtils.printMessage("Try to get modulus, exponent for public key", Level.DEBUG);
         try {
             String info = doGetText(pubkeyUrl);
             JSONObject json = JSONObject.parseObject(info);
             return new String[]{json.getString("modulus"), json.getString("exponent")};
         } catch (Exception e) {
-            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+            LogUtils.printMessage(null, e, Level.ERROR);
         }
         return null;
     }
     /**
      * 获取Execution参数
-     * @return Execution参数的字符串
+     * @return 获取的状态码实例
+     *  1   已经登录
+     *  0   获取成功
+     * -1   异常
      */
-    public String getExecution() {
-        LogUtils.printMessage("Try to get execution value", LogUtils.Level.DEBUG);
+    public StatusCode getExecution() {
+        LogUtils.printMessage("Try to get execution value", Level.DEBUG);
+        StatusCode statusCode = new StatusCode();
         try {
-            String body = doGetText(loginUrl);
-            if (body==null) return null;
-            Document document = Jsoup.parse(body);
-            if (!document.title().equals("应用中心")) {
-                return document.getElementsByAttributeValue("name", "execution").val();
+            /**暂时创建一个禁止自动重定向的客户端 */
+            setHttpClient(false, 0);
+            CloseableHttpResponse response = doGet(loginUrl);
+            int httpStatus = response.getStatusLine().getStatusCode();
+            if (httpStatus==302) {
+                statusCode.setStatus(1);
+                LogUtils.printMessage("Login by cookie directly...");
+            } else {
+                String textContent = entityToString(getResponseContent(response));
+                Document document = Jsoup.parse(textContent);
+                statusCode.setStatus(0);
+                statusCode.setMessage(document.getElementsByAttributeValue("name", "execution").val());
             }
-            LogUtils.printMessage("Login by cookie directly...");
         } catch (Exception e) {
-            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+            LogUtils.printMessage(null, e, Level.ERROR);
+            statusCode.setStatus(-1);
+        } finally{
+            //恢复自动GET重定向
+            setHttpClient(true, 10);
         }
-        return null;
+        return statusCode;
     }
     /**
      * 登录浙大通行证
@@ -118,42 +130,43 @@ public class ZJUClientService extends HttpClientUtils {
      * @return 响应正文
      */
     public String login(String username, String password, String targetService, boolean urlAutoEncode) {
-        String execution = getExecution();
-        if (execution==null) return null;
-        String[] publicKey = getPublicKey();
-        if (publicKey != null && username!=null && password!=null) {
+        try {
+            String targetUrl = loginUrl;
+            if (targetService != null) {
+                targetUrl += "?service="+(urlAutoEncode?URLEncoder.encode(targetService, Consts.UTF_8):targetService);
+            }
+            //获取提交参数
+            StatusCode execution = getExecution();
+            switch(execution.getStatus()) {
+                case  1: return doGetText(targetUrl);  // 已经登录
+                case -1: return null;                  // 获取异常
+                case  0: break;                        // 获取正常
+                default:return null;
+            }
+            LogUtils.printMessage("Try to login: " + username);
+            if (username==null||password==null) throw new NullPointerException("User not set");
+            String[] publicKey = getPublicKey();
             String pwdEncrypt=RSAEncryptUtils.encrypt(
                 password.getBytes(AppConfig.APP_CHARSET), publicKey[0], publicKey[1]);
-            LogUtils.printMessage("Try to login", LogUtils.Level.INFO);
             ArrayList<NameValuePair> parameters = new ArrayList<>(5);
             parameters.add(new BasicNameValuePair("username", username));
             parameters.add(new BasicNameValuePair("password", pwdEncrypt));
             parameters.add(new BasicNameValuePair("_eventId", "submit"));
             parameters.add(new BasicNameValuePair("authcode", ""));
-            parameters.add(new BasicNameValuePair("execution", execution));
-            Header[] headers = {
-                new BasicHeader("Content-Type", "application/x-www-form-urlencoded"),
-                new BasicHeader("Referer", "https://zjuam.zju.edu.cn/cas/login"),
-                new BasicHeader("Origin", "https://zjuam.zju.edu.cn"),
-                new BasicHeader("Upgrade-Insecure-Requests", "1"),
-                new BasicHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"),
-                new BasicHeader("Accept-Encoding", "gzip, deflate, br"),
-                new BasicHeader("Accept-Language","zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2")
-            };
-            if (targetService != null) {
-                loginUrl += "?service="+(urlAutoEncode?URLEncoder.encode(targetService, Consts.UTF_8):targetService);
-            }
-
+            parameters.add(new BasicNameValuePair("execution", execution.getMessage()));
+    
             //登录正常时，返回为302重定向
-            CloseableHttpResponse response = doPost(loginUrl, parameters, headers);
+            CloseableHttpResponse response = doPost(loginUrl, parameters);
             boolean status = response.getStatusLine().getStatusCode() == 302;
             String textContent = entityToString(getResponseContent(response));
             if (status && textContent!=null) {
-                LogUtils.printMessage("Login successfully: " + username, LogUtils.Level.INFO);
+                LogUtils.printMessage("Login successfully: " + username);
                 return textContent;
             }
+        } catch (Exception e) {
+            LogUtils.printMessage(null, e, Level.ERROR);
         }
-        LogUtils.printMessage("Login failed: " + username, LogUtils.Level.ERROR);
+        LogUtils.printMessage("Login failed: " + username, Level.ERROR);
         return null;
     }
     @Override

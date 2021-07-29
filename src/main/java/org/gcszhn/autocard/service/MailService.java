@@ -86,7 +86,7 @@ public class MailService {
             return;
         }
         setServiceAvailable(true);
-        LogUtils.printMessage("Mail sender is "+username , LogUtils.Level.INFO);
+        LogUtils.printMessage("Mail sender is "+username);
         LogUtils.printMessage("Mail password is "+username , LogUtils.Level.DEBUG);
         mailSession = Session.getDefaultInstance(props , new Authenticator() {
             @Override

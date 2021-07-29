@@ -63,34 +63,46 @@ public class HttpClientUtils implements Closeable {
     /**cookie缓存文件 */
     private String cookieFile;
     /**Http客户端 */
-    private CloseableHttpClient httpClient;
+    private CloseableHttpClient httpClient = null;
     /**cookie储存实例 */
     CookieStore cookieStore;
     /**默认参数构造 */
     public HttpClientUtils() {
-        this("cookies.cache", true, 10);
+        this("cookie.cache");
     }
     /**
-     * 创建Http客户端实例
+     * 指定cookie缓存的构造
      * @param cookieFile cookie文件, null时不缓存
+     */
+    public HttpClientUtils(String cookieFile) {
+        this.cookieFile = cookieFile;
+        setCookieCached(cookieFile!=null);
+        initCookieStore();
+        setHttpClient(true, 10);
+    }
+    /**
+     * 创建或修改Http客户端实例
      * @param redirectsEnabled 是否自动重定向，仅对GET请求有效，POST等请求需要自行重定向
      * @param maxRedirects 最大重定向次数
      */
-    public HttpClientUtils(String cookieFile, boolean redirectsEnabled, int maxRedirects) {
-        setCookieCached(cookieFile!=null);
-        this.cookieFile = cookieFile;
-        this.redirectsEnabled = redirectsEnabled;
-        //运行循环重定向但限制循环次数，
-        RequestConfig config = RequestConfig.custom()
-            .setCircularRedirectsAllowed(true)
-            .setMaxRedirects(maxRedirects)
-            .setRedirectsEnabled(redirectsEnabled)
-            .build(); 
-        initCookieStore();
-        httpClient = HttpClients.custom()
-            .setDefaultCookieStore(cookieStore)
-            .setDefaultRequestConfig(config)
-            .setUserAgent(USER_AGENT).build();
+    public void setHttpClient(boolean redirectsEnabled, int maxRedirects) {
+        try {
+            this.redirectsEnabled = redirectsEnabled;
+            if (httpClient!=null) httpClient.close();
+            //运行循环重定向但限制循环次数，
+            RequestConfig config = RequestConfig.custom()
+                .setCircularRedirectsAllowed(true)
+                .setMaxRedirects(maxRedirects)
+                .setRedirectsEnabled(redirectsEnabled)
+                .build();
+            if (cookieStore==null) initCookieStore();
+            httpClient = HttpClients.custom()
+                .setDefaultCookieStore(cookieStore)
+                .setDefaultRequestConfig(config)
+                .setUserAgent(USER_AGENT).build();
+        } catch (Exception e) {
+            LogUtils.printMessage(null,e, LogUtils.Level.ERROR);
+        }
     }
     /**
      * 初始化cookie储存实例，根据设定选择是否加载缓存
@@ -103,7 +115,7 @@ public class HttpClientUtils implements Closeable {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
             new File(App.workDir, cookieFile)))) {
             cookieStore = (CookieStore) ois.readObject();
-            LogUtils.printMessage("Cookie loaded from cache...", LogUtils.Level.INFO);
+            LogUtils.printMessage("Cookie loaded from cache...");
         } catch (Exception e) {
             cookieStore = new BasicCookieStore();
             LogUtils.printMessage(e.getMessage(), LogUtils.Level.DEBUG);
@@ -140,7 +152,7 @@ public class HttpClientUtils implements Closeable {
                 String url = response.getFirstHeader("Location").getValue();
                 if (url!=null) {
                     response.close();
-                    return doGet(url);
+                    return doRedirects(doGet(url));
                 }
             }
             return response;
@@ -173,7 +185,6 @@ public class HttpClientUtils implements Closeable {
      */
     private CloseableHttpResponse getResponse(HttpUriRequest request, Header... headers) {
         request.setHeaders(headers);
-        
         try  {
             return httpClient.execute(request);
         } catch (Exception e) {
@@ -278,11 +289,26 @@ public class HttpClientUtils implements Closeable {
     public String doPostText(String url, List<NameValuePair> parameters, Header... headers) {
         return entityToString(getResponseContent(doPost(url, parameters, headers)));
     }
+    /**
+     * GET请求下载文件
+     * @param filename 文件名
+     * @param url 目标地址
+     * @param headers 请求头
+     */
     public void doDownload(String filename, String url, Header...headers) {
         doDownload(filename, url, Methods.GET, headers);
     }
+    /**
+     * GET/POST请求下载文件
+     * @param filename 文件名
+     * @param url 目标地址
+     * @param methods 方法
+     * @param headers 请求头
+     */
     public void doDownload(String filename, String url, Methods methods, Header... headers) {
-        try(FileOutputStream fos = new FileOutputStream(filename)) {
+        File file = new File(filename);
+        file.getParentFile().mkdirs();
+        try(FileOutputStream fos = new FileOutputStream(file)) {
             HttpEntity entity = null;
             switch (methods) {
                 case GET:entity=getResponseContent(doGet(url, headers)); break;
@@ -297,6 +323,7 @@ public class HttpClientUtils implements Closeable {
                     fos.write(buffer, 0, len);
                 }
             }
+            LogUtils.printMessage("Saved to " + file.getCanonicalPath());
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
@@ -332,6 +359,6 @@ public class HttpClientUtils implements Closeable {
             }
         }
         httpClient.close();
-        LogUtils.printMessage("Close basic client...", LogUtils.Level.INFO);
+        LogUtils.printMessage("Close basic client...", LogUtils.Level.DEBUG);
     }
 }

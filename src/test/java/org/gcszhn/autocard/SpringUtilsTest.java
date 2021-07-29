@@ -15,27 +15,32 @@
  */
 package org.gcszhn.autocard;
 
-import static org.junit.Assert.assertEquals;
-
 import org.gcszhn.autocard.service.JobService;
 import org.gcszhn.autocard.service.ZJUClientService;
 import org.gcszhn.autocard.utils.SpringUtils;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Spring工具测试
  * @author Zhang.H.N
- * @version 1.0
+ * @version 1.1
  */
 public class SpringUtilsTest extends AppTest {
     @Test
     public void protoTypeTest() {
-        ZJUClientService zjuClientService1 = SpringUtils.getBean(ZJUClientService.class);
-        ZJUClientService zjuClientService2 = SpringUtils.getBean(ZJUClientService.class);
-        assertEquals("两个原型bean不应该相同", zjuClientService1==zjuClientService2, false);
+        Assert.assertNotEquals(
+            "两个原型bean不应该相同", 
+            SpringUtils.getBean(ZJUClientService.class), 
+            SpringUtils.getBean(ZJUClientService.class)
+            );
     }
     @Test
     public void rawTypeTest() {
-        assertEquals("两个单例bean应该相同", SpringUtils.getBean(JobService.class), SpringUtils.getBean(JobService.class));
+        Assert.assertEquals(
+            "两个单例bean应该相同", 
+            SpringUtils.getBean(JobService.class), 
+            SpringUtils.getBean(JobService.class)
+            );
     }
 }

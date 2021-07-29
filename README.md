@@ -62,14 +62,14 @@
                 "username":"***",         //打卡的通行证账号2
                 "password":"***",         //对应登录密码
                 "mail":"***",             //发送打卡结果的收件邮箱
-                "cron":"0 0 0 * * ? *"    //cron表达式定时，示例为每天00:00:00
+                "cron":"0 0 2 * * ? *"    //cron表达式定时，示例为每天02:00:00
             }
         ]
     }
 
 邮箱用于打卡的通知，默认使用浙大邮箱，否则需要`mail.smtp`和`mail.port`参数配置为指定第三方邮箱如QQ邮箱的配置。若不配置邮箱信息，将不会邮件提醒。
 
-cron表达式是用于定时任务的经典表达式，该参数允许用户自定义打卡定时方式。网上有很多现成的表达式模板以及表达式在线生成工具。**默认定时设定是每天早上9点自动打卡**。网上有很多介绍或[在线生成器](https://cron.qqe2.com/)。cron表达式从左到右（空格分开）指的是“秒 分 时 每月第几天 月份 每周第几天 年份”，特殊符号表示通配。
+cron表达式是用于定时任务的经典表达式，该参数允许用户自定义打卡定时方式。网上有很多现成的表达式模板以及表达式在线生成工具。**默认定时设定是每天早上9点自动打卡**。网上有很多介绍或[在线生成器](https://cron.qqe2.com/)。cron表达式从左到右（空格分开）指的是“秒 分 时 每月第几天 月份 每周第几天 年份”，特殊符号表示通配。**对于多个打卡用户配置，建议定时错开，并发登录容易被浙大后台拒绝**
 
     0 0 0 * * ? *      ## 每天00:00:00打卡
     0 30 6 * * ? *     ## 每天06:30:00打卡
@@ -101,7 +101,7 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 
 - app.zjuClient.cookieCached
 
-该参数默认为false，设置为true则会启动cookie缓存。
+该参数默认为false，设置为true则会启动cookie缓存。多用户配置时，此参数不要启用，否则会造成冲突登录。
 
     java -jar autocard-XXX.jar --app.zjuClient.cookieCached=true
 
@@ -114,20 +114,20 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 
 利用git工具，命令行下克隆项目
 
-        git clone https://gitee.com/GCSZHN/AutoCard.git
-        git clone https://github.com/GCS-ZHN/AutoCard.git
+    git clone https://gitee.com/GCSZHN/AutoCard.git
+    git clone https://github.com/GCS-ZHN/AutoCard.git
 
 2. 修改pom.xml
    
-        <maven.compiler.source>你的java版本</maven.compiler.source>
-        <maven.compiler.target>你的java版本</maven.compiler.target>
+    <maven.compiler.source>你的java版本</maven.compiler.source>
+    <maven.compiler.target>你的java版本</maven.compiler.target>
 
 用任意文本编辑器编辑pom.xml，修改上述配置。
 
 3. 运行打包脚本
 
-        bash build.sh         ## linux
-        powershell build.ps1  ## windows
+    bash build.sh         ## linux
+    powershell build.ps1  ## windows
 
 根据平台，运行打包脚本。会产生一个release子文件夹。不过个人没有macOS，故没有编写macOS打包脚本，用户可以直接执行`mvn package spring-boot:repackage`打包生成jar文件，然后按照前面的目录结构放置。
 
@@ -135,7 +135,6 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 `java.lang.reflect.InaccessibleObjectException`
 
 这是与java模块化有关的问题，采用java 16等很新的java版本可能会抛出，解答详细请看[相关issue](https://gitee.com/GCSZHN/AutoCard/issues/I42IF9)。修改时请将startup.sh中的java命令一并修改。
-
 
 ## 注意
 若打卡题目被更新，请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。

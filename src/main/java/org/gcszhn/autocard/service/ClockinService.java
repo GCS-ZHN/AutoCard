@@ -119,7 +119,7 @@ public class ClockinService implements Closeable {
                 LogUtils.printMessage(resp.getString("m"), LogUtils.Level.ERROR);
             }
         }
-        LogUtils.printMessage("Finish info submit...", LogUtils.Level.INFO);
+        LogUtils.printMessage("Finish info submit...", LogUtils.Level.DEBUG);
         return status;
     }
     @Override

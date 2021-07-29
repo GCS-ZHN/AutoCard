@@ -16,6 +16,8 @@
 package org.gcszhn.autocard;
 
 import org.gcszhn.autocard.service.ClockinService;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,16 +29,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class AutoClockinTest extends AppTest {
     @Autowired
     ClockinService autoCard;
+    @After
+    public void afterTest() {
+        autoCard.close();
+    }
     @Test
     public void getPageTest() {
-        System.out.println(autoCard.getPage("***", "***"));
+        Assert.assertNotNull(autoCard.getPage(trueZjuPassPortUser, trueZjuPassPortPass));
     }
     @Test
     public void getOldInfoTest() {
-        System.out.println(autoCard.getOldInfo("***", "***"));
+        Assert.assertNotNull(autoCard.getOldInfo(trueZjuPassPortUser, trueZjuPassPortPass));
     }
     @Test
     public void submitReportTest() {
-        autoCard.submit("***", "***");
+        Assert.assertNotEquals(-1, autoCard.submit(trueZjuPassPortUser, trueZjuPassPortPass));;
     }
 }

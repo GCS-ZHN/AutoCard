@@ -13,20 +13,19 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.utils;
 
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import lombok.Data;
 
 /**
- * App统一的单元测试抽象类
+ * 用于创建状态及信息
  * @author Zhang.H.N
  * @version 1.0
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public abstract class AppTest {
-    protected static final String trueZjuPassPortUser = "12019018";
-    protected static final String trueZjuPassPortPass = "zju244220";
+@Data
+public class StatusCode {
+    /**状态码 */
+    private int status = 0;
+    /**信息，可以是返回正文，也就是状态描述 */
+    private String message = null;
 }
