@@ -148,9 +148,12 @@ public class ZJUClientService extends HttpClientUtils {
             CloseableHttpResponse response = doPost(loginUrl, parameters, headers);
             boolean status = response.getStatusLine().getStatusCode() == 302;
             String textContent = entityToString(getResponseContent(response));
-            if (status && textContent!=null) return textContent;
+            if (status && textContent!=null) {
+                LogUtils.printMessage("Login successfully: " + username, LogUtils.Level.INFO);
+                return textContent;
+            }
         }
-        LogUtils.printMessage("Login failed", LogUtils.Level.ERROR);
+        LogUtils.printMessage("Login failed: " + username, LogUtils.Level.ERROR);
         return null;
     }
     @Override
