@@ -74,9 +74,10 @@ public class ClockinService implements Closeable {
         String page = getPage(username, password);
         if (page==null) return null;
         ArrayList<NameValuePair> res = new ArrayList<>();
+        // 该部分模拟网页JS代码进行信息合并
         try {
-            Pattern def = Pattern.compile("var def = (\\{.+\\});");
-            Matcher matcher = def.matcher(page);
+            Pattern defPattern = Pattern.compile("var def = (\\{.+\\});");
+            Matcher matcher = defPattern.matcher(page);
             JSONObject defJsonObject = null;
             if (matcher.find()) {
                 defJsonObject = JSONObject.parseObject(matcher.group(1));
@@ -93,8 +94,8 @@ public class ClockinService implements Closeable {
             } else {
                 return null;
             }
-            Pattern pattern = Pattern.compile("oldInfo: (\\{.+\\})");
-            matcher = pattern.matcher(page);
+            Pattern oldInfoPattern = Pattern.compile("oldInfo: (\\{.+\\})");
+            matcher = oldInfoPattern.matcher(page);
             JSONObject oldInfoJson = null;
             if (matcher.find()) {
                 oldInfoJson = JSONObject.parseObject(matcher.group(1));
@@ -106,14 +107,11 @@ public class ClockinService implements Closeable {
             infoJsonObject1.putAll(oldInfoJson);
             infoJsonObject1.forEach((String name, Object value)->{
                 switch (name) {
-                    //case "sfzx":value="1";break;
                     case "date":value=sdf.format(new Date());break;
                 }
-                if (name.equals("jrdqtlqk")) return;
+                if (value.toString().equals("[]")) return; //空数组不上报
                 res.add(new BasicNameValuePair(name, String.valueOf(value)));
             });
-            
-            System.out.println(infoJsonObject1.toJSONString());
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
@@ -140,7 +138,6 @@ public class ClockinService implements Closeable {
         }
         JSONObject resp = JSONObject.parseObject(client.doPostText(submitUrl, info));
         int status = resp.getIntValue("e");
-        System.out.println(resp.get("m"));
         LogUtils.Level level = null;
         switch(status) {
             case 0:{level= LogUtils.Level.INFO;break;}
