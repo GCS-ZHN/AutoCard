@@ -17,6 +17,7 @@ package org.gcszhn.autocard.service;
 
 import org.gcszhn.autocard.utils.LogUtils;
 import org.gcszhn.autocard.utils.SpringUtils;
+import org.gcszhn.autocard.utils.StatusCode;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -41,8 +42,8 @@ public class AutoClockinJob implements Job {
                 throw new NullPointerException("Empty username or password of zjupassport");
 
             //打卡
-            int status = -1;
-            while (change>0 && (status = cardService.submit(username, password))==-1) {
+            StatusCode statusCode = new StatusCode();
+            while (change>0 && (statusCode = cardService.submit(username, password)).getStatus()==-1) {
                 int delay = (4-change) * 10;
                 LogUtils.printMessage("Try to submit again after sleeping "+delay+"s ...", 
                     LogUtils.Level.ERROR);
@@ -55,20 +56,12 @@ public class AutoClockinJob implements Job {
             }
 
             //邮件通知
-            if (mailService.isServiceAvailable() && mail != null && status < 1) {
-                if (status==0) {
-                    mailService.sendMail(
-                        mail,
-                        "健康打卡成功通知", 
-                        username+ ", 今日健康打卡成功，特此通知。",
-                        "text/html;charset=utf-8");
-                } else {
-                    mailService.sendMail(
-                        mail,
-                        "健康打卡失败通知", 
-                        username+ ", 今日健康打卡失败，请登录服务器查看打卡日志。",
-                        "text/html;charset=utf-8");
-                }
+            if (mailService.isServiceAvailable() && mail != null) {
+                mailService.sendMail(
+                    mail,
+                    "健康打卡通知", 
+                    statusCode.getMessage(),
+                    "text/html;charset=utf-8");
             }
         } catch (Exception e) {
             LogUtils.printMessage(e.getMessage(), LogUtils.Level.ERROR);

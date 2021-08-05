@@ -27,6 +27,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.gcszhn.autocard.utils.LogUtils;
+import org.gcszhn.autocard.utils.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -35,7 +36,7 @@ import org.springframework.stereotype.Service;
 /**
  * 健康打卡实现类
  * @author Zhang.H.N
- * @version 1.1
+ * @version 1.2
  */
 @Scope("prototype")
 @Service
@@ -74,21 +75,45 @@ public class ClockinService implements Closeable {
         if (page==null) return null;
         ArrayList<NameValuePair> res = new ArrayList<>();
         try {
-            Pattern pattern = Pattern.compile("oldInfo: (\\{.+\\})");
-            Matcher matcher = pattern.matcher(page);
+            Pattern def = Pattern.compile("var def = (\\{.+\\});");
+            Matcher matcher = def.matcher(page);
+            JSONObject defJsonObject = null;
             if (matcher.find()) {
-                JSONObject oldInfoJson = JSONObject.parseObject(matcher.group(1));
-                oldInfoJson.forEach((String name, Object value)->{
-                    switch (name) {
-                        //case "sfzx":value="1";break;
-                        case "date":value=sdf.format(new Date());break;
-                    }
-
-                    res.add(new BasicNameValuePair(name, String.valueOf(value)));
-                });
+                defJsonObject = JSONObject.parseObject(matcher.group(1));
             } else {
                 return null;
             }
+            Pattern info = Pattern.compile("\\$\\.extend\\((\\{.+?\\}), def, (\\{.+?\\})\\)", Pattern.DOTALL);
+            JSONObject infoJsonObject1 = null;
+            JSONObject infoJsonObject2 = null;
+            matcher = info.matcher(page);
+            if (matcher.find()) {
+                infoJsonObject1 = JSONObject.parseObject(matcher.group(1));
+                infoJsonObject2 = JSONObject.parseObject(matcher.group(2));
+            } else {
+                return null;
+            }
+            Pattern pattern = Pattern.compile("oldInfo: (\\{.+\\})");
+            matcher = pattern.matcher(page);
+            JSONObject oldInfoJson = null;
+            if (matcher.find()) {
+                oldInfoJson = JSONObject.parseObject(matcher.group(1));
+            } else {
+                return null;
+            }
+            infoJsonObject1.putAll(defJsonObject);
+            infoJsonObject1.putAll(infoJsonObject2);
+            infoJsonObject1.putAll(oldInfoJson);
+            infoJsonObject1.forEach((String name, Object value)->{
+                switch (name) {
+                    //case "sfzx":value="1";break;
+                    case "date":value=sdf.format(new Date());break;
+                }
+                if (name.equals("jrdqtlqk")) return;
+                res.add(new BasicNameValuePair(name, String.valueOf(value)));
+            });
+            
+            System.out.println(infoJsonObject1.toJSONString());
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
@@ -103,24 +128,29 @@ public class ClockinService implements Closeable {
      *  1   今日已经打卡
      * -1   打卡失败
      */
-    public int submit(String username, String password) {
+    public StatusCode submit(String username, String password) {
+        StatusCode statusCode = new StatusCode();
         LogUtils.printMessage("Try to submit for " + username);
         ArrayList<NameValuePair> info = getOldInfo(username, password);
         if (info==null) {
             LogUtils.printMessage("Submit failed", LogUtils.Level.ERROR);
-            return -1;
+            statusCode.setMessage(username+", 打卡信息获取失败");
+            statusCode.setStatus(-1);
+            return statusCode;
         }
         JSONObject resp = JSONObject.parseObject(client.doPostText(submitUrl, info));
         int status = resp.getIntValue("e");
+        System.out.println(resp.get("m"));
+        LogUtils.Level level = null;
         switch(status) {
-            case 0:{LogUtils.printMessage("Check in successfully");break;}
-            case 1:{LogUtils.printMessage("You has checked in currently");break;}
-            default:{
-                LogUtils.printMessage(resp.getString("m"), LogUtils.Level.ERROR);
-            }
+            case 0:{level= LogUtils.Level.INFO;break;}
+            case 1:{level= LogUtils.Level.ERROR;break;}
         }
+        statusCode.setStatus(status);
+        statusCode.setMessage(username+","+resp.getString("m"));
+        LogUtils.printMessage(resp.getString("m"), level);
         LogUtils.printMessage("Finish info submit...", LogUtils.Level.DEBUG);
-        return status;
+        return statusCode;
     }
     @Override
     public void close() {
