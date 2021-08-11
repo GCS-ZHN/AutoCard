@@ -21,6 +21,8 @@ import java.math.BigInteger;
  * @author Zhang.H.N
  */
 public class RSAEncryptUtils {
+    /**屏蔽构造函数 */
+    private RSAEncryptUtils() {}
     /**
      * 利用公钥的模和幂次，直接进行RSA加密
      * @param info 信息的字节数据

@@ -28,6 +28,8 @@ public class LogUtils {
     public enum Level {
         DEBUG, INFO, ERROR;
     }
+    /**屏蔽构造函数 */
+    private LogUtils(){};
     /**
      * 输出指定级别日志，指定信息源类名，并输出堆栈信息
      * @param message 信息内容

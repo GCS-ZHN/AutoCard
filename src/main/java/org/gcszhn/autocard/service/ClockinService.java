@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 /**
  * 健康打卡实现类
  * @author Zhang.H.N
- * @version 1.2
+ * @version 1.2.1
  */
 @Scope("prototype")
 @Service
@@ -107,7 +107,8 @@ public class ClockinService implements Closeable {
             infoJsonObject1.putAll(oldInfoJson);
             infoJsonObject1.forEach((String name, Object value)->{
                 switch (name) {
-                    case "date":value=sdf.format(new Date());break;
+                    case "date"  : value=sdf.format(new Date());break;
+                    case "bztcyy": value="";break;   //地区变更需要手动打卡一次，过滤上一次的地区变更原因
                 }
                 if (value.toString().equals("[]")) return; //空数组不上报
                 res.add(new BasicNameValuePair(name, String.valueOf(value)));
