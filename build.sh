@@ -1,6 +1,6 @@
 #!/bin/bash
 appName="autocard"
-mvn package spring-boot:repackage
+mvn clean package spring-boot:repackage
 if [ ! -d "release" ];then
     mkdir release
 fi

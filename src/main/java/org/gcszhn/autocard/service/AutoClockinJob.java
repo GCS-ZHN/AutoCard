@@ -30,7 +30,18 @@ import org.quartz.JobExecutionException;
 public class AutoClockinJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        LogUtils.printMessage("Automatic clock-in job starts...");
+        //开启随机延迟，这样可以避免每次打卡时间过于固定
+        try {
+            boolean isDelay = context.getMergedJobDataMap().getBooleanValue("delay");
+            if (isDelay) {
+                long delaySec = (long)(Math.random()*1800);
+                LogUtils.printMessage("任务随机延时" + delaySec+"秒");
+                Thread.sleep(delaySec * 1000); 
+            }
+        } catch (Exception e) {
+            throw new JobExecutionException(e);
+        }
+        LogUtils.printMessage("自动打卡开始");
         // 三次打卡尝试，失败后发送邮件提示。
         int change = 3;
         try (ClockinService cardService = SpringUtils.getBean(ClockinService.class)) {
@@ -45,13 +56,13 @@ public class AutoClockinJob implements Job {
             StatusCode statusCode = new StatusCode();
             while (change>0 && (statusCode = cardService.submit(username, password)).getStatus()==-1) {
                 int delay = (4-change) * 10;
-                LogUtils.printMessage("Try to submit again after sleeping "+delay+"s ...", 
+                LogUtils.printMessage(delay+"秒后再次尝试", 
                     LogUtils.Level.ERROR);
                 Thread.sleep(delay * 1000);
                 change--;
             }
             if (change==0) {
-                LogUtils.printMessage("Submit failed 3 times for " + username, 
+                LogUtils.printMessage("打卡尝试失败3次 " + username, 
                     LogUtils.Level.ERROR);
             }
 

@@ -143,7 +143,7 @@ public class ZJUClientService extends HttpClientUtils {
                 case  0: break;                        // 获取正常
                 default:return null;
             }
-            LogUtils.printMessage("Try to login: " + username);
+            LogUtils.printMessage("正在登录 " + username);
             if (username==null||password==null) throw new NullPointerException("User not set");
             String[] publicKey = getPublicKey();
             String pwdEncrypt=RSAEncryptUtils.encrypt(
@@ -160,7 +160,7 @@ public class ZJUClientService extends HttpClientUtils {
             boolean status = response.getStatusLine().getStatusCode() == 302;
             String textContent = entityToString(getResponseContent(response));
             if (status && textContent!=null) {
-                LogUtils.printMessage("Login successfully: " + username);
+                LogUtils.printMessage("登录成功 " + username);
                 return textContent;
             }
         } catch (Exception e) {

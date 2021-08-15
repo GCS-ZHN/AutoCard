@@ -120,9 +120,9 @@ public class MailService {
             msg.setContent(content, contentType);
 
             Transport.send(msg);
-            LogUtils.printMessage("Send to " + toAddress +" successfully!");
+            LogUtils.printMessage("发送给" + toAddress +"通知邮件成功!");
         } catch (Exception e) {
-            LogUtils.printMessage("Send to " + toAddress +" failed!", Level.ERROR);
+            LogUtils.printMessage("发送给" + toAddress +"通知邮件失败!",  Level.ERROR);
             LogUtils.printMessage(e.getMessage(), Level.ERROR);
             e.printStackTrace();
         } finally {

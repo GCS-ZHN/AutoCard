@@ -129,10 +129,10 @@ public class ClockinService implements Closeable {
      */
     public StatusCode submit(String username, String password) {
         StatusCode statusCode = new StatusCode();
-        LogUtils.printMessage("Try to submit for " + username);
+        LogUtils.printMessage("准备提交打卡 " + username);
         ArrayList<NameValuePair> info = getOldInfo(username, password);
         if (info==null) {
-            LogUtils.printMessage("Submit failed", LogUtils.Level.ERROR);
+            LogUtils.printMessage("打卡信息获取失败", LogUtils.Level.ERROR);
             statusCode.setMessage(username+", 打卡信息获取失败");
             statusCode.setStatus(-1);
             return statusCode;
@@ -147,7 +147,6 @@ public class ClockinService implements Closeable {
         statusCode.setStatus(status);
         statusCode.setMessage(username+","+resp.getString("m"));
         LogUtils.printMessage(resp.getString("m"), level);
-        LogUtils.printMessage("Finish info submit...", LogUtils.Level.DEBUG);
         return statusCode;
     }
     @Override
