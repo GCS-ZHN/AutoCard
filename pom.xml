@@ -153,6 +153,7 @@
                 <version>4.1</version>
                 <executions>
                     <execution>
+                        <?m2e execute onConfiguration?>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>remove</goal>
