@@ -166,7 +166,7 @@ public class ZJUClientService extends HttpClientUtils {
         } catch (Exception e) {
             LogUtils.printMessage(null, e, Level.ERROR);
         }
-        LogUtils.printMessage("Login failed: " + username, Level.ERROR);
+        LogUtils.printMessage("登录失败 " + username, Level.ERROR);
         return null;
     }
     @Override
