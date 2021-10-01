@@ -158,7 +158,7 @@ public class ZJUClientService extends HttpClientUtils {
             //登录正常时，返回为302重定向
             CloseableHttpResponse response = doPost(loginUrl, parameters);
             boolean status = response.getStatusLine().getStatusCode() == 302;
-            String textContent = entityToString(getResponseContent(response));
+            String textContent = targetService!=null?entityToString(getResponseContent(response)):"";
             if (status && textContent!=null) {
                 LogUtils.printMessage("登录成功 " + username);
                 return textContent;
