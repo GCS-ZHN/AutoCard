@@ -15,7 +15,13 @@
  */
 package org.gcszhn.autocard;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import org.gcszhn.autocard.service.ZJUClientService;
 import org.jsoup.Jsoup;
@@ -69,5 +75,43 @@ public class ZJUClientTest extends AppTest {
                 "test/fig/test.png", 
                 "http://grs.zju.edu.cn/allogene/page/home.htm?pageAction=getPic");
         }
+    }
+    @Test
+    public void loginCourseTest() throws FileNotFoundException {
+        String userUrl="https://courses.zju.edu.cn/user/index";
+        String coursesUrl="https://courses.zju.edu.cn/api/users/%s/courses";
+        String memberUrl="https://courses.zju.edu.cn/api/course/%d/enrollments?fields=user(email,name,user_no,department(name))";
+        ArrayList<String> peoples = new ArrayList<>();
+        PrintWriter pw = new PrintWriter("studentInfo.csv");
+        pw.println("\"id\",\"name\",\"department\",\"email\"");
+        if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
+            String userIndexPage=client.doGetText(userUrl);
+            Document document = Jsoup.parse(userIndexPage);
+            String userId = document.getElementById("userId").attr("value");
+            String userCourses = client.doGetText(String.format(coursesUrl, userId));
+            JSONObject courses = JSONObject.parseObject(userCourses);
+            for (Object obj: courses.getJSONArray("courses")) {
+                JSONObject course = (JSONObject) obj;
+                String courseName = course.getString("name");
+                int courseId = course.getIntValue("id");
+                System.out.println(courseName+"\t"+courseId);
+                String enrollments = client.doGetText(String.format(memberUrl, courseId));
+                JSONArray members = JSONObject.parseObject(enrollments).getJSONArray("enrollments");
+                for (Object userObj: members) {
+                    JSONObject user = ((JSONObject) userObj).getJSONObject("user");
+                    String studentId = user.getString("user_no");
+                    //System.out.println(name+"\t"+studentId+"\t"+email+"\t"+department);
+                    if (peoples.contains(studentId)) {
+                        continue;
+                    }
+                    peoples.add(studentId);
+                    String name = user.getString("name");
+                    String department = user.getJSONObject("department").getString("name");
+                    String email = user.getString("email");
+                    pw.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\"", studentId, name, department, email));
+                }
+            }
+        }
+        pw.close();
     }
 }

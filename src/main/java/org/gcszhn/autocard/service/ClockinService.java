@@ -137,6 +137,13 @@ public class ClockinService implements Closeable {
             statusCode.setStatus(-1);
             return statusCode;
         }
+        String area = null;
+        for (NameValuePair pair: info) {
+            if (pair.getName().equals("area")) {
+                area = pair.getValue();
+                break;
+            }
+        }
         JSONObject resp = JSONObject.parseObject(client.doPostText(submitUrl, info));
         int status = resp.getIntValue("e");
         LogUtils.Level level = null;
@@ -145,7 +152,7 @@ public class ClockinService implements Closeable {
             case 1:{level= LogUtils.Level.ERROR;break;}
         }
         statusCode.setStatus(status);
-        statusCode.setMessage(username+","+resp.getString("m"));
+        statusCode.setMessage(username+","+resp.getString("m")+"\n打卡地区："+ area);
         LogUtils.printMessage(resp.getString("m"), level);
         return statusCode;
     }
