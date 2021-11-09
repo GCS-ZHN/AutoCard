@@ -27,6 +27,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public abstract class AppTest {
-    protected static final String trueZjuPassPortUser = "12***";
-    protected static final String trueZjuPassPortPass = "zj***";
+    protected static final String trueZjuPassPortUser = "19****";
+    protected static final String trueZjuPassPortPass = "zju***";
 }

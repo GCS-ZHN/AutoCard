@@ -110,7 +110,7 @@ public class ClockinService implements Closeable {
                     case "date"  : value=sdf.format(new Date());break;
                     case "bztcyy": value="";break;   //地区变更需要手动打卡一次，过滤上一次的地区变更原因
                 }
-                if (value.toString().equals("[]")) return; //空数组不上报
+                if (value==null||value.equals("")||value.toString().equals("[]")) return; //空数组不上报
                 res.add(new BasicNameValuePair(name, String.valueOf(value)));
             });
         } catch (Exception e) {
@@ -152,8 +152,9 @@ public class ClockinService implements Closeable {
             case 1:{level= LogUtils.Level.ERROR;break;}
         }
         statusCode.setStatus(status);
-        statusCode.setMessage(username+","+resp.getString("m")+"\n打卡地区："+ area);
+        statusCode.setMessage(username+"您好,"+resp.getString("m")+"，打卡地区为："+ area+"（如若区域不符，请次日手动打卡更改地址）");
         LogUtils.printMessage(resp.getString("m"), level);
+        LogUtils.printMessage("地点："+area);
         return statusCode;
     }
     @Override
