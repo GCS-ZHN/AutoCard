@@ -39,7 +39,7 @@ public class AutoClockinTest extends AppTest {
     }
     @Test
     public void getOldInfoTest() {
-        Assert.assertNotNull(autoCard.getOldInfo(trueZjuPassPortUser, trueZjuPassPortPass));
+        System.out.println(autoCard.getOldInfo(trueZjuPassPortUser, trueZjuPassPortPass));
     }
     @Test
     public void submitReportTest() {

@@ -13,20 +13,18 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.utils;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-/**
- * App统一的单元测试抽象类
- * @author Zhang.H.N
- * @version 1.0
- */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public abstract class AppTest {
-    protected static final String trueZjuPassPortUser = "220****";
-    protected static final String trueZjuPassPortPass = "202****";
+public class DigestUtils {
+    public static String digest(String message, String algorithm) throws NoSuchAlgorithmException {
+        byte[] data = message.getBytes(StandardCharsets.UTF_8);
+        MessageDigest md = MessageDigest.getInstance(algorithm);
+        md.update(data);
+        return new String(Base64.getEncoder().encode(md.digest()), StandardCharsets.UTF_8);
+    }
 }
