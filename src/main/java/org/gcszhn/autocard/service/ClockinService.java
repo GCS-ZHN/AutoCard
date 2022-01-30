@@ -76,7 +76,7 @@ public class ClockinService implements Closeable {
         ArrayList<NameValuePair> res = new ArrayList<>();
         // 该部分模拟网页JS代码进行信息合并
         try {
-            Pattern defPattern = Pattern.compile("var def = (\\{.+\\});");
+            Pattern defPattern = Pattern.compile("var def = (\\{.+?\\});", Pattern.DOTALL);
             Matcher matcher = defPattern.matcher(page);
             JSONObject defJsonObject = null;
             if (matcher.find()) {
@@ -94,7 +94,7 @@ public class ClockinService implements Closeable {
             } else {
                 return null;
             }
-            Pattern oldInfoPattern = Pattern.compile("oldInfo: (\\{.+\\})");
+            Pattern oldInfoPattern = Pattern.compile("oldInfo: (\\{.+?\\}),\n");
             matcher = oldInfoPattern.matcher(page);
             JSONObject oldInfoJson = null;
             if (matcher.find()) {
