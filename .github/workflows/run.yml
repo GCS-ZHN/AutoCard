@@ -6,7 +6,7 @@ name: run
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   schedule:
-    - cron: 14 9 * * *
+    - cron: 20 9 * * *
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
