@@ -32,7 +32,7 @@ jobs:
            java-version: '17'
        
       - name: "Setup maven"
-        run: apt-get install maven
+        run: sudo apt-get install maven
 
       - name: "Build project"
         run: bash run.sh
