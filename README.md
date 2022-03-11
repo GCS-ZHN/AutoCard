@@ -141,7 +141,7 @@ powershell build.ps1  ## windows
 ```
 根据平台，运行打包脚本。会产生一个release子文件夹。不过个人没有macOS，故没有编写macOS打包脚本，用户可以直接执行`mvn package spring-boot:repackage`打包生成jar文件，然后按照前面的目录结构放置。
 ## 基于github action的使用
-fork本项目，修改action/config/application.json文件的用户配置，其中cron表达式对此选项无效。需要修改定时，请修改.github/workflows/run.yml里的cron表达式。
+fork本项目，修改action/config/application.json文件的用户配置，其中cron表达式对此选项无效。需要修改定时，请修改.github/workflows/run.yml里的cron表达式。注意github用的是UTC标准时间，而中国是东八区
 
 ## 可能的问题
 `java.lang.reflect.InaccessibleObjectException`
