@@ -11,14 +11,12 @@
             "username":"***",
             "password":"***",
             "mail":"***",
-            "cron":"0 0 0 * * ? *",
             "delay":false
         },
         {
             "username":"***",
             "password":"***",
             "mail":"***",
-            "cron":"0 10 0 * * ? *",
             "delay":false
         }
     ]

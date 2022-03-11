@@ -110,6 +110,11 @@ java -jar autocard-XXX.jar "--app.autoCard.cronExpresssion= 0 0 7 * * ? *"
 ```shell
 java -jar autocard-XXX.jar --app.zjuClient.cookieCached=true
 ```
+
+- app.autoCard.immediate
+
+该参数指定为true时，即代表立即运行打卡任务，结束后自动退出程序。配置github action的定时功能，可以实现定时打卡。
+
 ## 自己打包
 若用户需要使用低版本如jdk 1.8，需要在对应版本（安装对应版本jdk并修改pom.xml中版本信息）下重新编译打包maven项目（要求用户得安装了[maven](https://maven.apache.org/download.cgi)），建议配置maven工具的镜像为阿里云（这样首次打包时下载依赖库会快一点，[阿里云教程](https://maven.aliyun.com/mvn/guide)）。
 
@@ -145,6 +150,9 @@ powershell build.ps1  ## windows
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
 ## 更新记录
+### v1.4.0
+支持了即时打卡，加入了github action支持，用户可以利用github action功能来使用github服务器进行打卡。用户可以选择fork当前项目，然后修改action/config/application.json的个人信息，若想修改定时时间，请修改.github/workflows/run.yml里的cron表达式。
+
 ### v1.3.9
 修复报错“从下列地区返回浙江格式错误”和代码优化。
 
