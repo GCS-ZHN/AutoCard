@@ -9,9 +9,9 @@
 </div>
 
 ## 项目概述
-本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置。
+本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置，支持利用github action。
 
-## 基本使用步骤
+## 基于自建平台的使用
 **STEP 1 用来跑程序的设备**
 
 定时打卡任务意味着程序需要一直保持运行，因此个人建议将项目运行在一台服务器上。阿里云、华为云、腾讯云等都提供许多服务器租赁。当然，你要是保持个人电脑一直不关，那么用个人电脑也OK。
@@ -140,6 +140,8 @@ bash build.sh         ## linux
 powershell build.ps1  ## windows
 ```
 根据平台，运行打包脚本。会产生一个release子文件夹。不过个人没有macOS，故没有编写macOS打包脚本，用户可以直接执行`mvn package spring-boot:repackage`打包生成jar文件，然后按照前面的目录结构放置。
+## 基于github action的使用
+fork本项目，修改action/config/application.json文件的用户配置，其中cron表达式对此选项无效。需要修改定时，请修改.github/workflows/run.yml里的cron表达式。
 
 ## 可能的问题
 `java.lang.reflect.InaccessibleObjectException`
@@ -151,7 +153,7 @@ powershell build.ps1  ## windows
 
 ## 更新记录
 ### v1.4.0
-支持了即时打卡，加入了github action支持，用户可以利用github action功能来使用github服务器进行打卡。用户可以选择fork当前项目，然后修改action/config/application.json的个人信息，若想修改定时时间，请修改.github/workflows/run.yml里的cron表达式。
+支持了即时打卡，加入了github action支持，用户可以利用github action功能来使用github服务器进行打卡。但暂时无法收到邮件通知。
 
 ### v1.3.9
 修复报错“从下列地区返回浙江格式错误”和代码优化。
