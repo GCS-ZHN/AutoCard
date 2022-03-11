@@ -9,6 +9,8 @@ on:
     branches: [ action ]
   pull_request:
     branches: [ action ]
+  schedule:
+    - cron: "0 0 6 * * ? *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,7 +18,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "test"
-  test:
+  autocard:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -32,4 +34,4 @@ jobs:
            java-version: '17'
 
       - name: "Run AutoCard"
-        run: cd action && java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard-1.4.0.jar --app.autoCard.immediate=true
+        run: cd action && java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard-1.4.0.jar --app.autoCard.immediate=true --mail.smtp.ssl.enable=false --mail.smtp.class=com.sun.mail.smtp.SMTPTransport
