@@ -22,7 +22,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import org.gcszhn.autocard.service.AutoClockinJob;
+import org.gcszhn.autocard.service.ClockinService;
 import org.gcszhn.autocard.service.JobService;
+import org.gcszhn.autocard.service.MailService;
 import org.gcszhn.autocard.utils.LogUtils;
 import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +55,11 @@ public class App {
     /**
      * 启动定时服务
      * @param jobService 定时服务注入
+     * @param mailService
+     * @param cardService
      */
     @Autowired
-    public void start(JobService jobService) {
+    public void start(JobService jobService, MailService mailService, ClockinService cardService) {
         try {
             JSONArray jsonArray =  appConfig.getUserJobs();
             jsonArray.forEach((Object obj)->{
@@ -64,7 +68,7 @@ public class App {
                     JobDataMap jobDataMap = new JobDataMap(jsonObject);
                     if (immediate) {
                         try {
-                            AutoClockinJob.execute(jobDataMap);
+                            AutoClockinJob.execute(jobDataMap, mailService, cardService);
                         } catch (Exception e) {
                             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
                         }

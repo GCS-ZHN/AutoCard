@@ -31,9 +31,11 @@ import org.quartz.JobExecutionException;
 public class AutoClockinJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        execute(context.getMergedJobDataMap());
+        ClockinService cardService = SpringUtils.getBean(ClockinService.class);
+        MailService mailService = SpringUtils.getBean(MailService.class);
+        execute(context.getMergedJobDataMap(), mailService, cardService);
     }
-    public static void execute(JobDataMap dataMap) throws JobExecutionException {
+    public static void execute(JobDataMap dataMap, MailService mailService, ClockinService cardService) throws JobExecutionException {
         boolean isDelay = dataMap.getBooleanValue("delay");
         String username = dataMap.getString("username");
         String password = dataMap.getString("password");
@@ -51,12 +53,9 @@ public class AutoClockinJob implements Job {
         LogUtils.printMessage("自动打卡开始");
         // 三次打卡尝试，失败后发送邮件提示。
         int change = 3;
-        try (ClockinService cardService = SpringUtils.getBean(ClockinService.class)) {
-            MailService mailService = SpringUtils.getBean(MailService.class);
-
+        try {
             if (username==null||password==null) 
                 throw new NullPointerException("Empty username or password of zjupassport");
-
             //打卡
             StatusCode statusCode = new StatusCode();
             while (change>0 && (statusCode = cardService.submit(username, password)).getStatus()==-1) {
