@@ -30,9 +30,6 @@ jobs:
         with:
            distribution: 'temurin' # See 'Supported distributions' for available options
            java-version: '17'
-       
-      - name: "Setup maven"
-        run: sudo apt-get install maven
 
-      - name: "Build project"
-        run: bash run.sh
+      - name: "Run AutoCard"
+        run: java -jar action/autocard-1.4.0.jar

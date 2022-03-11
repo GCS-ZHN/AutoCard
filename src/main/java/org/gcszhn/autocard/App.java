@@ -41,6 +41,8 @@ public class App {
     /**配置的默认任务定时cron表达式 */
     @Value("${app.autoCard.cronExpression}")
     private String defaultCronExpression;
+    @Value("${app.autoCard.immediate}")
+    private boolean immediate;
     /**APP配置 */
     @Autowired
     AppConfig appConfig;
@@ -60,10 +62,21 @@ public class App {
                 if (obj instanceof JSONObject) {
                     JSONObject jsonObject = (JSONObject) obj;
                     JobDataMap jobDataMap = new JobDataMap(jsonObject);
-                    String cron = jsonObject.getString("cron");
-                    jobService.addJob(AutoClockinJob.class, cron==null?defaultCronExpression:cron, jobDataMap); 
+                    if (immediate) {
+                        try {
+                            AutoClockinJob.execute(jobDataMap);
+                        } catch (Exception e) {
+                            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+                        }
+                    } else {
+                        String cron = jsonObject.getString("cron");
+                        jobService.addJob(AutoClockinJob.class, cron==null?defaultCronExpression:cron, jobDataMap); 
+                    }
                 }
             });
+            if (immediate) {
+                exit(0);
+            }
             LogUtils.printMessage(jsonArray.size()+" user job added");
             if (!jsonArray.isEmpty()) jobService.start();
         } catch (Exception e) {

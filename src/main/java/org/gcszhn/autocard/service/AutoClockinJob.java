@@ -19,6 +19,7 @@ import org.gcszhn.autocard.utils.LogUtils;
 import org.gcszhn.autocard.utils.SpringUtils;
 import org.gcszhn.autocard.utils.StatusCode;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -30,9 +31,15 @@ import org.quartz.JobExecutionException;
 public class AutoClockinJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+        execute(context.getMergedJobDataMap());
+    }
+    public static void execute(JobDataMap dataMap) throws JobExecutionException {
+        boolean isDelay = dataMap.getBooleanValue("delay");
+        String username = dataMap.getString("username");
+        String password = dataMap.getString("password");
+        String mail = dataMap.getString("mail");
         //开启随机延迟，这样可以避免每次打卡时间过于固定
         try {
-            boolean isDelay = context.getMergedJobDataMap().getBooleanValue("delay");
             if (isDelay) {
                 long delaySec = (long)(Math.random()*1800);
                 LogUtils.printMessage("任务随机延时" + delaySec+"秒");
@@ -46,9 +53,7 @@ public class AutoClockinJob implements Job {
         int change = 3;
         try (ClockinService cardService = SpringUtils.getBean(ClockinService.class)) {
             MailService mailService = SpringUtils.getBean(MailService.class);
-            String username = context.getMergedJobDataMap().getString("username");
-            String password = context.getMergedJobDataMap().getString("password");
-            String mail = context.getMergedJobDataMap().getString("mail");
+
             if (username==null||password==null) 
                 throw new NullPointerException("Empty username or password of zjupassport");
 
