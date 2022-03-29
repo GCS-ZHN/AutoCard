@@ -10,18 +10,9 @@
         {
             "username":"***",
             "password":"***",
-            "mail":"***",
-            "cron":"0 0 0 * * ? *",
-            "dingtalkurl": "https://oapi.dingtalk.com/robot/send?access_token=****",
-            "dingtalksecret": "SEC****",
-            "delay":true
-        },
-        {
-            "username":"***",
-            "password":"***",
-            "mail":"***",
-            "cron":"0 10 0 * * ? *",
-            "delay":true
+            "dingtalkurl": null,
+            "dingtalksecret": null,
+            "delay":false
         }
     ]
 }
