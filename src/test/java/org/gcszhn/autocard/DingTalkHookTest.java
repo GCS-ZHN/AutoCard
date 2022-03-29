@@ -15,18 +15,21 @@
  */
 package org.gcszhn.autocard;
 
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.gcszhn.autocard.service.DingTalkHookService;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * App统一的单元测试抽象类
- * @author Zhang.H.N
- * @version 1.0
- */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public abstract class AppTest {
-    protected static final String trueZjuPassPortUser = "***";
-    protected static final String trueZjuPassPortPass = "***";
+public class DingTalkHookTest extends AppTest {
+    @Autowired
+    DingTalkHookService service;
+
+    @Test
+    public void sendTextTest() {
+        String baseUrl = "https://oapi.dingtalk.com/robot/send?access_token=***";
+        String secret = "SEC****";
+        String payLoadUrl = service.getSignature(secret, baseUrl);
+        System.out.println(payLoadUrl);
+        System.out.println( service.sendText(payLoadUrl, "打卡信息获取失败"));
+    }
+    
 }

@@ -12,6 +12,8 @@
             "password":"***",
             "mail":"***",
             "cron":"0 0 0 * * ? *",
+            "dingtalkurl": "https://oapi.dingtalk.com/robot/send?access_token=****",
+            "dingtalksecret": "SEC****",
             "delay":true
         },
         {

@@ -38,6 +38,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -244,6 +245,22 @@ public class HttpClientUtils implements Closeable {
             if (parameters != null) {
                 UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, AppConfig.APP_CHARSET);
                 request.setEntity(formEntity);
+            }
+
+            return getResponse(request, headers);
+        } catch (Exception e) {
+            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+        }
+        return null;
+    }
+    public CloseableHttpResponse doPost(String url, String content, String contentType, Header... headers) {
+        LogUtils.printMessage("Try to post " + url, LogUtils.Level.DEBUG);
+        try {
+            HttpPost request = new HttpPost(url);
+            if (content != null) {
+                StringEntity entity = new StringEntity(content, AppConfig.APP_CHARSET);
+                entity.setContentType(contentType);
+                request.setEntity(entity);
             }
             return getResponse(request, headers);
         } catch (Exception e) {

@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.gcszhn.autocard.service.AutoClockinJob;
 import org.gcszhn.autocard.service.ClockinService;
+import org.gcszhn.autocard.service.DingTalkHookService;
 import org.gcszhn.autocard.service.JobService;
 import org.gcszhn.autocard.service.MailService;
 import org.gcszhn.autocard.utils.LogUtils;
@@ -59,7 +60,7 @@ public class App {
      * @param cardService
      */
     @Autowired
-    public void start(JobService jobService, MailService mailService, ClockinService cardService) {
+    public void start(JobService jobService, MailService mailService, ClockinService cardService, DingTalkHookService dingTalkHookService) {
         try {
             JSONArray jsonArray =  appConfig.getUserJobs();
             jsonArray.forEach((Object obj)->{
@@ -68,7 +69,7 @@ public class App {
                     JobDataMap jobDataMap = new JobDataMap(jsonObject);
                     if (immediate) {
                         try {
-                            AutoClockinJob.execute(jobDataMap, mailService, cardService);
+                            AutoClockinJob.execute(jobDataMap, mailService, cardService, dingTalkHookService);
                         } catch (Exception e) {
                             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
                         }

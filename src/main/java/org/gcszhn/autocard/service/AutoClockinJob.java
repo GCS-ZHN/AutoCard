@@ -33,13 +33,20 @@ public class AutoClockinJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         ClockinService cardService = SpringUtils.getBean(ClockinService.class);
         MailService mailService = SpringUtils.getBean(MailService.class);
-        execute(context.getMergedJobDataMap(), mailService, cardService);
+        DingTalkHookService dingTalkHookService = SpringUtils.getBean(DingTalkHookService.class);
+        execute(context.getMergedJobDataMap(), mailService, cardService, dingTalkHookService);
     }
-    public static void execute(JobDataMap dataMap, MailService mailService, ClockinService cardService) throws JobExecutionException {
+    public static void execute(
+        JobDataMap dataMap, 
+        MailService mailService, 
+        ClockinService cardService,
+        DingTalkHookService dingTalkHookService) throws JobExecutionException {
         boolean isDelay = dataMap.getBooleanValue("delay");
         String username = dataMap.getString("username");
         String password = dataMap.getString("password");
         String mail = dataMap.getString("mail");
+        String dingtalkURL = dataMap.getString("dingtalkurl");
+        String dingtalkSecret = dataMap.getString("dingtalksecret");
         //开启随机延迟，这样可以避免每次打卡时间过于固定
         try {
             if (isDelay) {
@@ -77,6 +84,13 @@ public class AutoClockinJob implements Job {
                     "健康打卡通知", 
                     statusCode.getMessage(),
                     "text/html;charset=utf-8");
+            }
+
+            if (dingtalkURL!=null) {
+                if (dingtalkSecret!=null) {
+                    dingtalkURL = dingTalkHookService.getSignature(dingtalkSecret, dingtalkURL);
+                }
+                LogUtils.printMessage(dingTalkHookService.sendText(dingtalkURL, "【健康打卡通知】" + statusCode.getMessage()));;
             }
         } catch (Exception e) {
             LogUtils.printMessage(e.getMessage(), LogUtils.Level.ERROR);

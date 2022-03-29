@@ -13,20 +13,8 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.service;
 
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-/**
- * App统一的单元测试抽象类
- * @author Zhang.H.N
- * @version 1.0
- */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public abstract class AppTest {
-    protected static final String trueZjuPassPortUser = "***";
-    protected static final String trueZjuPassPortPass = "***";
+public interface WebHookService {
+    public String sendText(String payLoadURL, String info);
 }
