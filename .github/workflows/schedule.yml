@@ -6,9 +6,9 @@ name: schedule
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ action ]
+    branches: [ main ]
   schedule:
-    - cron: '5 6 * * *'
+    - cron: ' 0 1 * * *' # 东八区09:00，约莫有延时10~20，看github服务器情况
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
