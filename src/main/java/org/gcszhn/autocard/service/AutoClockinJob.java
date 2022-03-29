@@ -19,6 +19,7 @@ import org.gcszhn.autocard.utils.LogUtils;
 import org.gcszhn.autocard.utils.SpringUtils;
 import org.gcszhn.autocard.utils.StatusCode;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -30,9 +31,17 @@ import org.quartz.JobExecutionException;
 public class AutoClockinJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+        ClockinService cardService = SpringUtils.getBean(ClockinService.class);
+        MailService mailService = SpringUtils.getBean(MailService.class);
+        execute(context.getMergedJobDataMap(), mailService, cardService);
+    }
+    public static void execute(JobDataMap dataMap, MailService mailService, ClockinService cardService) throws JobExecutionException {
+        boolean isDelay = dataMap.getBooleanValue("delay");
+        String username = dataMap.getString("username");
+        String password = dataMap.getString("password");
+        String mail = dataMap.getString("mail");
         //开启随机延迟，这样可以避免每次打卡时间过于固定
         try {
-            boolean isDelay = context.getMergedJobDataMap().getBooleanValue("delay");
             if (isDelay) {
                 long delaySec = (long)(Math.random()*1800);
                 LogUtils.printMessage("任务随机延时" + delaySec+"秒");
@@ -44,14 +53,9 @@ public class AutoClockinJob implements Job {
         LogUtils.printMessage("自动打卡开始");
         // 三次打卡尝试，失败后发送邮件提示。
         int change = 3;
-        try (ClockinService cardService = SpringUtils.getBean(ClockinService.class)) {
-            MailService mailService = SpringUtils.getBean(MailService.class);
-            String username = context.getMergedJobDataMap().getString("username");
-            String password = context.getMergedJobDataMap().getString("password");
-            String mail = context.getMergedJobDataMap().getString("mail");
+        try {
             if (username==null||password==null) 
                 throw new NullPointerException("Empty username or password of zjupassport");
-
             //打卡
             StatusCode statusCode = new StatusCode();
             while (change>0 && (statusCode = cardService.submit(username, password)).getStatus()==-1) {

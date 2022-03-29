@@ -22,7 +22,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import org.gcszhn.autocard.service.AutoClockinJob;
+import org.gcszhn.autocard.service.ClockinService;
 import org.gcszhn.autocard.service.JobService;
+import org.gcszhn.autocard.service.MailService;
 import org.gcszhn.autocard.utils.LogUtils;
 import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,8 @@ public class App {
     /**配置的默认任务定时cron表达式 */
     @Value("${app.autoCard.cronExpression}")
     private String defaultCronExpression;
+    @Value("${app.autoCard.immediate}")
+    private boolean immediate;
     /**APP配置 */
     @Autowired
     AppConfig appConfig;
@@ -51,19 +55,32 @@ public class App {
     /**
      * 启动定时服务
      * @param jobService 定时服务注入
+     * @param mailService
+     * @param cardService
      */
     @Autowired
-    public void start(JobService jobService) {
+    public void start(JobService jobService, MailService mailService, ClockinService cardService) {
         try {
             JSONArray jsonArray =  appConfig.getUserJobs();
             jsonArray.forEach((Object obj)->{
                 if (obj instanceof JSONObject) {
                     JSONObject jsonObject = (JSONObject) obj;
                     JobDataMap jobDataMap = new JobDataMap(jsonObject);
-                    String cron = jsonObject.getString("cron");
-                    jobService.addJob(AutoClockinJob.class, cron==null?defaultCronExpression:cron, jobDataMap); 
+                    if (immediate) {
+                        try {
+                            AutoClockinJob.execute(jobDataMap, mailService, cardService);
+                        } catch (Exception e) {
+                            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+                        }
+                    } else {
+                        String cron = jsonObject.getString("cron");
+                        jobService.addJob(AutoClockinJob.class, cron==null?defaultCronExpression:cron, jobDataMap); 
+                    }
                 }
             });
+            if (immediate) {
+                exit(0);
+            }
             LogUtils.printMessage(jsonArray.size()+" user job added");
             if (!jsonArray.isEmpty()) jobService.start();
         } catch (Exception e) {
