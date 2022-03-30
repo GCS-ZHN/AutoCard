@@ -8,8 +8,8 @@
     },
     "jobs":[
         {
-            "username":"***",
-            "password":"***",
+            "username":null,
+            "password":null,
             "dingtalkurl": null,
             "dingtalksecret": null,
             "delay":false
