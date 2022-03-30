@@ -1,11 +1,4 @@
 {
-    "mail":{
-        "username":"***",
-        "nickname":"AutoCard",
-        "password":"***",
-        "smtp":"smtp.zju.edu.cn",
-        "port":994
-    },
     "jobs":[
         {
             "username":null,

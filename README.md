@@ -176,12 +176,14 @@ powershell build.ps1  ## windows
 ## 基于github action的使用
 fork本项目，修改**action/config/application.json**文件的用户配置，其中cron表达式对此选项无效。需要修改定时，请修改.github/workflows/run.yml里的cron表达式，默认设定北京时间09:00。注意github用的是UTC标准时间，而中国是东八区。**同时请注意，由于配置文件存放了密码等信息，请务必将fork的项目闭源**。
 
+注意：**请确认fork后的仓库开启了github action功能**，如果没有，请在当前项目的Settings>Actions>General下"allow all actions and reusable workflows"。
+
 当action运行时，可以在项目的**Actions**选项下看到schedule这个工作流的运行记录，点击进去可以看到**Run AutoCard**下面就是程序执行日志。目前无法成功发送通知邮件，但不影响打卡实现。
 ![action记录](templete/action.png)
 
 如果想立即运行action，只需要对自己项目下的任意文件进行在线修改并提交即可。
 
-其他注意事项与前面一致。
+其他注意事项与前面一致。使用github action打卡，建议使用钉钉消息推送而不是邮箱邮件。
 
 ## 可能的问题
 `java.lang.reflect.InaccessibleObjectException`
