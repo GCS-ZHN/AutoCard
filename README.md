@@ -242,7 +242,7 @@ Fork本项目，在fork后的仓库里”Setttings > Secrets > Actions > New rep
 
 ## 更新计划
 - [ ] 支持从命令行获取配置信息
-- [ ] 支持利用github仓库enivronment获取配置
+- [X] 支持利用github仓库enivronment获取配置
 
 ## 反馈
 任何使用问题，欢迎加入[Telegram交流群](https://t.me/zjuers)交流。
