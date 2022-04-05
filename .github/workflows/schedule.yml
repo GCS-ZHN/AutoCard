@@ -26,4 +26,9 @@ jobs:
 
       # 执行打卡
       - name: "Run AutoCard"
-        run: cd action && java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard-1.4.1.jar --app.autoCard.immediate=true
+        env: 
+          AUTOCARD_USER: ${{ secrets.AUTOCARD_USER }}
+          AUTOCARD_PWD: ${{ secrets.AUTOCARD_PWD }}
+          AUTOCARD_DINGTALK_URL: ${{ secrets.AUTOCARD_DINGTALK_URL }}
+          AUTOCARD_DINGTALK_SECRET: ${{ secrets.AUTOCARD_DINGTALK_SECRET }}
+        run: cd action && java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard.jar --app.autoCard.immediate=true

@@ -167,4 +167,10 @@ public class ClockinService implements Closeable {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
     }
+    /**
+     * 通过清除cookie来登出
+     */
+    public void logout() {
+        client.clearCookie();
+    }
 }

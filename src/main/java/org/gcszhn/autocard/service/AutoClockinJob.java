@@ -61,7 +61,7 @@ public class AutoClockinJob implements Job {
         // 三次打卡尝试，失败后发送邮件提示。
         int change = 3;
         try {
-            if (username==null||password==null) 
+            if (username==null||password==null||username.isEmpty()||password.isEmpty()) 
                 throw new NullPointerException("Empty username or password of zjupassport");
             //打卡
             StatusCode statusCode = new StatusCode();
@@ -78,7 +78,7 @@ public class AutoClockinJob implements Job {
             }
 
             //邮件通知
-            if (mailService.isServiceAvailable() && mail != null) {
+            if (mailService.isServiceAvailable() && mail != null && !mail.isEmpty()) {
                 mailService.sendMail(
                     mail,
                     "健康打卡通知", 
@@ -86,11 +86,16 @@ public class AutoClockinJob implements Job {
                     "text/html;charset=utf-8");
             }
 
-            if (dingtalkURL!=null) {
-                if (dingtalkSecret!=null) {
+            if (dingtalkURL!=null && !dingtalkURL.isEmpty()) {
+                if (dingtalkSecret!=null && !dingtalkSecret.isEmpty()) {
                     dingtalkURL = dingTalkHookService.getSignature(dingtalkSecret, dingtalkURL);
                 }
-                LogUtils.printMessage(dingTalkHookService.sendText(dingtalkURL, "【健康打卡通知】" + statusCode.getMessage()));;
+                StatusCode status = dingTalkHookService.sendText(dingtalkURL, "【健康打卡通知】" + statusCode.getMessage());
+                if (status.getStatus() == 0) {
+                    LogUtils.printMessage("钉钉推送成功");
+                } else {
+                    LogUtils.printMessage("钉钉推送失败：" + status.getMessage());
+                }
             }
         } catch (Exception e) {
             LogUtils.printMessage(e.getMessage(), LogUtils.Level.ERROR);

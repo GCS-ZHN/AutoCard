@@ -174,16 +174,31 @@ powershell build.ps1  ## windows
 ```
 根据平台，运行打包脚本。会产生一个release子文件夹。不过个人没有macOS，故没有编写macOS打包脚本，用户可以直接执行`mvn package spring-boot:repackage`打包生成jar文件，然后按照前面的目录结构放置。
 ## 基于github action的使用
-fork本项目，修改**action/config/application.json**文件的用户配置，其中cron表达式对此选项无效。需要修改定时，请修改.github/workflows/run.yml里的cron表达式，默认设定北京时间09:00。注意github用的是UTC标准时间，而中国是东八区。**同时请注意，由于配置文件存放了密码等信息，请务必将fork的项目闭源**。
+### 使用GitHub的仓库密钥
+Fork本项目，在fork后的仓库里”Setttings > Secrets > Actions > New repository secret“添加下列仓库密钥（也是本地运行时的系统环境变量）。
+- AUTOCARD_USER  打卡的用户
+- AUTOCARD_PWD  打卡的密码
+- AUTOCARD_DINGTALK_URL 打卡的钉钉推送URL
+- AUTOCARD_DINGTALK_SECRET 打卡的钉钉推送密钥
+- AUTOCARD_DELAY 是否随机延迟打卡
+上述环境变量与前述配置文件的参数对应。AutoCard会读取这些环境变量，配置打卡用户。其相较于配置文件的优点在于，配置文件是在github开源显示的，二上述环境变量是加密的。但不支持多个账号配置。
+![github环境变量](templete/env.png)
 
-注意：**请确认fork后的仓库开启了github action功能**，如果没有，请在当前项目的Settings>Actions>General下"allow all actions and reusable workflows"。
+如需修改定时，请修改.github/workflows/run.yml里的cron表达式，默认设定北京时间09:00。注意github用的是UTC标准时间，而中国是东八区。
+
+### 使用json配置文件
+使用github的导入功能新建自己的AutoCard仓库。在action/config/application.json下添加添加如前文配置即可。此时注意将项目闭源。
+
+### 注意事项
+
+注意：**请仓库开启了github action功能**，如果没有，请在当前项目的Settings>Actions>General下"allow all actions and reusable workflows"。
 
 当action运行时，可以在项目的**Actions**选项下看到schedule这个工作流的运行记录，点击进去可以看到**Run AutoCard**下面就是程序执行日志。目前无法成功发送通知邮件，但不影响打卡实现。
 ![action记录](templete/action.png)
 
 如果想立即运行action，只需要对自己项目下的任意文件进行在线修改并提交即可。
 
-其他注意事项与前面一致。使用github action打卡，建议使用钉钉消息推送而不是邮箱邮件。
+其他注意事项与前面一致。使用github action打卡，邮件推送在github action中不可使用。
 
 ## 可能的问题
 `java.lang.reflect.InaccessibleObjectException`
@@ -194,6 +209,10 @@ fork本项目，修改**action/config/application.json**文件的用户配置，
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
 ## 更新记录
+
+### v1.4.2
+修复了多用户立即打卡时，后续用户无效的问题。支持了通过系统环境变量来配置打卡用户。
+
 ### v1.4.1
 支持了钉钉消息推送，可以自定义钉钉机器人接收消息。
 
@@ -226,4 +245,4 @@ fork本项目，修改**action/config/application.json**文件的用户配置，
 - [ ] 支持利用github仓库enivronment获取配置
 
 ## 反馈
-任何使用问题，欢迎通过邮箱**zhang.h.n@foxmail.com**交流。
+任何使用问题，欢迎加入[Telegram交流群](https://t.me/zjuers)交流。

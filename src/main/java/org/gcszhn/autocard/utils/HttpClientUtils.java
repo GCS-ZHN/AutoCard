@@ -378,4 +378,14 @@ public class HttpClientUtils implements Closeable {
         httpClient.close();
         LogUtils.printMessage("Close basic client...", LogUtils.Level.DEBUG);
     }
+    /**
+     * 清理cookie
+     */
+    public void clearCookie() {
+        if (cookieStore==null) {
+            initCookieStore();
+            return;
+        }
+        cookieStore.clear();
+    }
 }

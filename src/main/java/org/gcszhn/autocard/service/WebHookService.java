@@ -15,6 +15,8 @@
  */
 package org.gcszhn.autocard.service;
 
+import org.gcszhn.autocard.utils.StatusCode;
+
 public interface WebHookService {
-    public String sendText(String payLoadURL, String info);
+    public StatusCode sendText(String payLoadURL, String info);
 }

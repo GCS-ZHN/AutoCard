@@ -151,7 +151,8 @@ public class ZJUClientService extends HttpClientUtils {
                 default:return null;
             }
             LogUtils.printMessage("正在登录 " + username);
-            if (username==null||password==null) throw new NullPointerException("User not set");
+            if (username==null||password==null||username.isEmpty()||password.isEmpty()) 
+                throw new NullPointerException("User not set");
             String[] publicKey = getPublicKey();
             String pwdEncrypt=RSAEncryptUtils.encrypt(
                 password.getBytes(AppConfig.APP_CHARSET), publicKey[0], publicKey[1]);

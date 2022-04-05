@@ -1,11 +1,3 @@
 {
-    "jobs":[
-        {
-            "username":null,
-            "password":null,
-            "dingtalkurl": null,
-            "dingtalksecret": null,
-            "delay":false
-        }
-    ]
+    "jobs":[]
 }

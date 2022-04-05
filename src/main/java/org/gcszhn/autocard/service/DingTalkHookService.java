@@ -20,25 +20,38 @@ import java.net.URLEncoder;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import org.apache.commons.codec.binary.Base64;
 import org.gcszhn.autocard.utils.HttpClientUtils;
 import org.gcszhn.autocard.utils.LogUtils;
+import org.gcszhn.autocard.utils.StatusCode;
 import org.gcszhn.autocard.utils.LogUtils.Level;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DingTalkHookService implements WebHookService {
     private HttpClientUtils utils = new HttpClientUtils();
+    private static final String DINGTALK_URL = "https://oapi.dingtalk.com/robot/send?access_token=";
     @Override
-    public String sendText(String payLoadURL, String info) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("msgtype", "text");
-        JSONObject textObject = new JSONObject();
-        textObject.put("content", info);
-        jsonObject.put("text", textObject);
-        return utils.entityToString(utils.getResponseContent(utils.doPost(payLoadURL, jsonObject.toJSONString(), "application/json")));
+    public StatusCode sendText(String payLoadURL, String info) {
+        StatusCode statusCode = new StatusCode();
+        if (!payLoadURL.startsWith(DINGTALK_URL)) {
+            statusCode.setStatus(1);
+            statusCode.setMessage("无效的钉钉机器人URL");
+        } else {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("msgtype", "text");
+            JSONObject textObject = new JSONObject();
+            textObject.put("content", info);
+            jsonObject.put("text", textObject);
+            JSONObject res = JSON.parseObject(utils.entityToString(utils.getResponseContent(utils.doPost(payLoadURL, jsonObject.toJSONString(), "application/json"))));
+            statusCode.setStatus(res.getIntValue("errcode"));
+            statusCode.setMessage(res.getString("errmsg"));
+        }
+
+        return statusCode;
     }
 
     public String getSignature(String secret, String payLoadURL) {

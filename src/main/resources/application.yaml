@@ -26,6 +26,7 @@ app:
     submitUrl: https://healthreport.zju.edu.cn/ncov/wap/default/save
     cronExpression: 0 0 9 * * ? *  ## 每天09:00:00触发
     immediate: false
+    config: "file://config/application.json"
 mail:
     transport:
         protocol: smtp
