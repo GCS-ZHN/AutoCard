@@ -43,6 +43,6 @@ public class AutoClockinTest extends AppTest {
     }
     @Test
     public void submitReportTest() {
-        Assert.assertNotEquals(-1, autoCard.submit(trueZjuPassPortUser, trueZjuPassPortPass));;
+        Assert.assertNotEquals(-1, autoCard.submit(trueZjuPassPortUser, trueZjuPassPortPass));
     }
 }

@@ -18,7 +18,10 @@ package org.gcszhn.autocard.service;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import org.apache.http.Consts;
@@ -58,7 +61,7 @@ public class ZJUClientService extends HttpClientUtils {
      * 获取RSA公钥的模和幂
      * @return 模、幂的十六进制字符串组
      */
-    public String[] getPublicKey() {
+    private String[] getPublicKey() {
         LogUtils.printMessage("Try to get modulus, exponent for public key", Level.DEBUG);
         try {
             String info = doGetText(pubkeyUrl);
@@ -76,7 +79,7 @@ public class ZJUClientService extends HttpClientUtils {
      *  0   获取成功
      * -1   异常
      */
-    public StatusCode getExecution() {
+    private StatusCode getExecution() {
         LogUtils.printMessage("Try to get execution value", Level.DEBUG);
         StatusCode statusCode = new StatusCode();
         try {
@@ -86,7 +89,6 @@ public class ZJUClientService extends HttpClientUtils {
             int httpStatus = response.getStatusLine().getStatusCode();
             if (httpStatus==302) {
                 statusCode.setStatus(1);
-                LogUtils.printMessage("Login by cookie directly...");
             } else {
                 String textContent = entityToString(getResponseContent(response));
                 Document document = Jsoup.parse(textContent);
@@ -138,7 +140,12 @@ public class ZJUClientService extends HttpClientUtils {
             //获取提交参数
             StatusCode execution = getExecution();
             switch(execution.getStatus()) {
-                case  1: return doGetText(targetUrl);  // 已经登录
+                case  1: {                                 // 已经登录
+                    if (checkUserInfo(username)) {
+                        return doGetText(targetUrl);
+                    }
+                    return null;
+                }  
                 case -1: return null;                  // 获取异常
                 case  0: break;                        // 获取正常
                 default:return null;
@@ -157,10 +164,8 @@ public class ZJUClientService extends HttpClientUtils {
     
             //登录正常时，返回为302重定向
             CloseableHttpResponse response = doPost(loginUrl, parameters);
-            boolean status = response.getStatusLine().getStatusCode() == 302;
             String textContent = targetService!=null?entityToString(getResponseContent(response)):"";
-            if (status && textContent!=null) {
-                LogUtils.printMessage("登录成功 " + username);
+            if (checkUserInfo(username)) {
                 return textContent;
             }
         } catch (Exception e) {
@@ -168,6 +173,40 @@ public class ZJUClientService extends HttpClientUtils {
         }
         LogUtils.printMessage("登录失败 " + username, Level.ERROR);
         return null;
+    }
+    public JSONObject getUserInfo() {
+        String info = doGetText("https://service.zju.edu.cn");
+        if (info != null) {
+            Pattern pattern = Pattern.compile("\"site\": \"(\\w+)\"");
+            Matcher matcher = pattern.matcher(info);
+            if (matcher.find()) {
+                String portalContext = matcher.group(1);
+                String userInfo = doGetText("https://service.zju.edu.cn/_web/portal/api/user/loginInfo.rst?_p="+portalContext);
+                JSONObject res = JSON.parseObject(userInfo);
+                if (!res.getString("result").equals("1")) {
+                    LogUtils.printMessage(res.getString("reason"), Level.ERROR);
+                }
+                return res.getJSONObject("data");
+            }
+        }
+        LogUtils.printMessage("No port context found", Level.ERROR);
+        return null;
+    }
+    public boolean checkUserInfo(String username) {
+        JSONObject userInfo = getUserInfo();
+        if (userInfo != null) {
+            String id = userInfo.getString("loginName");
+            String name = userInfo.getString("userName");
+            if (id.equals(username) && name != null && id != null) {
+                LogUtils.printMessage("登录成功，学工号："+id+"，姓名："+name);
+                return true;
+            }
+            LogUtils.printMessage("想要登录用户与已经登录用户不一致", Level.ERROR);
+            LogUtils.printMessage("想要登录用户："+username, Level.ERROR);
+            LogUtils.printMessage("已经登录用户："+id, Level.ERROR);
+        }
+        LogUtils.printMessage("登录失败：" + username, Level.ERROR);
+        return false;
     }
     @Override
     public void close() throws IOException {

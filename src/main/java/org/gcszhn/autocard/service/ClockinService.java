@@ -154,7 +154,7 @@ public class ClockinService implements Closeable {
             case 1:{level= LogUtils.Level.ERROR;break;}
         }
         statusCode.setStatus(status);
-        statusCode.setMessage(username+"您好,"+resp.getString("m")+"，打卡地区为："+ area+"（如若区域不符，请次日手动打卡更改地址）");
+        statusCode.setMessage(client.getUserInfo().getString("userName")+"您好，"+resp.getString("m")+"，打卡地区为："+ area+"（如若区域不符，请次日手动打卡更改地址）");
         LogUtils.printMessage(resp.getString("m"), level);
         LogUtils.printMessage("地点："+area);
         return statusCode;
