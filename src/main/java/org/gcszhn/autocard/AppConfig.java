@@ -16,10 +16,12 @@
 package org.gcszhn.autocard;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -43,12 +45,21 @@ import lombok.Getter;
 public class AppConfig implements EnvironmentAware {
     /**默认字符集 */
     public static final Charset APP_CHARSET = StandardCharsets.UTF_8;
+    /**APP缓存文件 */
+    private static final String APP_CACHE = "autocard_cache.json";
+    /**应用缓存 */
+    private  JSONObject appCache;
     /**JSON配置文件 */
-    private JSONObject jsonConfig;
+    private JSONObject appConfig;
     /**是否为测试模式 */
     private @Getter boolean testMode = false;
     public AppConfig() {
         LogUtils.printMessage("Test mode is " + testMode, LogUtils.Level.DEBUG);
+        try (FileInputStream fis = new FileInputStream(APP_CACHE)) {
+            appCache = JSON.parseObject(new String(fis.readAllBytes(), APP_CHARSET));
+        } catch (Exception e) {
+            appCache = new JSONObject();
+        }
     }
     /**
      * SpringBoot 2.x无法在Configuration中使用@Value，因此需要获取springboot环境
@@ -56,7 +67,7 @@ public class AppConfig implements EnvironmentAware {
     @Override
     public void setEnvironment(Environment env) {
         loadJSONConfig(env.getProperty("app.autoCard.config"));
-        testMode = jsonConfig.getBooleanValue("testmode");
+        testMode = appConfig.getBooleanValue("testmode");
 
         // 通过系统环境变量添加单个打卡用户
         
@@ -71,7 +82,7 @@ public class AppConfig implements EnvironmentAware {
             global_user.put("dingtalkurl", System.getenv("AUTOCARD_DINGTALK_URL"));
             global_user.put("dingtalksecret",  System.getenv("AUTOCARD_DINGTALK_SECRET"));
             global_user.put("delay", System.getenv("AUTOCARD_DELAY") != null);
-            jsonConfig.getJSONArray("jobs").add(global_user);
+            appConfig.getJSONArray("jobs").add(global_user);
         }
 
     }
@@ -91,11 +102,11 @@ public class AppConfig implements EnvironmentAware {
                 jsonString = configSource.substring(7);
             }
             if (jsonString != null) {
-                jsonConfig = JSONObject.parseObject(jsonString);
+                appConfig = JSONObject.parseObject(jsonString);
                 LogUtils.printMessage("用户配置已加载");
              } else {
-                 jsonConfig = new JSONObject();
-                jsonConfig.put("jobs", new JSONArray());
+                 appConfig = new JSONObject();
+                appConfig.put("jobs", new JSONArray());
              }
         }
         catch (Exception e) {
@@ -111,7 +122,7 @@ public class AppConfig implements EnvironmentAware {
      */
     @Bean
     public MailService registerMailService(ConfigurableEnvironment env) {
-        JSONObject mailConfig = jsonConfig.getJSONObject("mail");
+        JSONObject mailConfig = appConfig.getJSONObject("mail");
         MailService mailService = new MailService();
         if (mailConfig != null){
             String nickname = mailConfig.getString("nickname");
@@ -133,7 +144,37 @@ public class AppConfig implements EnvironmentAware {
      * @return 用户任务
      */
     public JSONArray getUserJobs() {
-        JSONArray jsonArray = jsonConfig.getJSONArray("jobs");
+        JSONArray jsonArray = appConfig.getJSONArray("jobs");
         return jsonArray==null?new JSONArray():jsonArray;
+    }
+
+    public void addCacheItem(String key, Object value) {
+        appCache.put(key, value);
+        cache();
+    }
+
+    public <T> T getCacheItem(String key, Class<T> type) {
+        return appCache.getObject(key, type);
+    }
+
+    public String getCacheItem(String key) {
+        return appCache.getObject(key, String.class);
+    }
+
+    public void removeCacheItem(String key) {
+        appCache.remove(key);
+        cache();
+    }
+
+    public void cache() {
+        try {
+            JSON.writeJSONString(new FileOutputStream(APP_CACHE), APP_CHARSET, appCache);
+        } catch (Exception e) {
+            LogUtils.printMessage("保存缓存失败", LogUtils.Level.ERROR);
+        }
+    }
+
+    public <T> T getConfigItem(String key, Class<T> type) {
+        return appConfig.getObject(key, type);
     }
 }

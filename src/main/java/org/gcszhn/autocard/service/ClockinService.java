@@ -26,8 +26,13 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.gcszhn.autocard.AppConfig;
+import org.gcszhn.autocard.utils.DigestUtils;
 import org.gcszhn.autocard.utils.LogUtils;
 import org.gcszhn.autocard.utils.StatusCode;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -41,6 +46,10 @@ import org.springframework.stereotype.Service;
 @Scope("prototype")
 @Service
 public class ClockinService implements Closeable {
+    /**时间格式化 */
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMdd");
+    /**表达校验数据缓存关键字 */
+    private static final String FORM_MD5_VALUE= "FORM_MD5_VALUE";
     /**打卡信息网址 */
     @Value("${app.autoCard.reportUrl}")
     /**打卡提交网址 */
@@ -50,8 +59,9 @@ public class ClockinService implements Closeable {
     /**浙大通行证客户端 */
     @Autowired
     private ZJUClientService client;
-    /**时间格式化 */
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    /**应用配置实例 */
+    @Autowired
+    private AppConfig appConfig;
     /**
      * 用于访问打卡页面
      * @param username 用户名
@@ -60,9 +70,54 @@ public class ClockinService implements Closeable {
      */
     public String getPage(String username, String password) {
         if(client.login(username, password)) {
-            return client.doGetText(reportUrl);
+            String page1 = client.doGetText(reportUrl);
+            Boolean formvalidation = appConfig.getConfigItem("formvalidation", Boolean.class);
+            if (formvalidation!=null && !formvalidation) {
+                return page1;
+            }
+            String page2 = client.doGetText(reportUrl);
+            boolean page1Flag = formValidation(page1);
+            boolean page2Flag = formValidation(page2);
+            if ( page1Flag == (page1!=null) && page2Flag == (page2!=null)) {
+                LogUtils.printMessage("表单校验通过", LogUtils.Level.INFO);
+                return page1;
+            }  else  if (page1 != null && page2 != null && page1Flag != page2Flag) {
+                // 意味着两次获取的页面表单是变化的，无法作为校验依据
+                LogUtils.printMessage("表单校验功能失效，已忽略校验，请联系作者", LogUtils.Level.ERROR);
+                return page1;
+            } else {
+                LogUtils.printMessage("表单校验失败，请检查健康打卡页面是否更新或等待一会再次尝试，若更新请删除缓存文件并重启打卡程序", LogUtils.Level.ERROR);
+            }
         }
         return null;
+    }
+    /**
+     * 表单数据的MD5校验，浙大健康打卡时常更新，但后端验证不够及时，因此进行前端验证
+     * @param html 表单的html页面
+     * @return true为验证通过
+     */
+    public boolean formValidation(String html) {
+        try {
+            if (html != null) {
+                Document document = Jsoup.parse(html);
+                Element form = document.getElementsByClass("form-detail2").last();
+                if (form != null) {
+                    String digest = DigestUtils.digest(form.html(), "MD5");
+                    if (appConfig.getCacheItem(FORM_MD5_VALUE) == null) {
+                        appConfig.addCacheItem(FORM_MD5_VALUE, digest);
+                    } 
+                    if (appConfig.getCacheItem(FORM_MD5_VALUE).equals(digest)) {
+                        return true;
+                    }
+                } else {
+                    LogUtils.printMessage("未捕获表单信息，捕获信息如下", LogUtils.Level.ERROR);
+                    System.out.println(html);
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.printMessage(e.getMessage(), e, LogUtils.Level.ERROR);
+        }
+        return false;
     }
     /**
      * 用于提取已有提交信息
@@ -107,7 +162,7 @@ public class ClockinService implements Closeable {
             infoJsonObject1.putAll(oldInfoJson);
             infoJsonObject1.forEach((String name, Object value)->{
                 switch (name) {
-                    case "date"  : value=sdf.format(new Date());break;
+                    case "date"  : value=SDF.format(new Date());break;
                     case "bztcyy": value="";break;   //地区变更需要手动打卡一次，过滤上一次的地区变更原因
                 }
                 // fix bug for "是否从下列地区返回浙江错误"
@@ -135,7 +190,7 @@ public class ClockinService implements Closeable {
         ArrayList<NameValuePair> info = getOldInfo(username, password);
         if (info==null) {
             LogUtils.printMessage("打卡信息获取失败", LogUtils.Level.ERROR);
-            statusCode.setMessage(username+", 打卡信息获取失败");
+            statusCode.setMessage(username+"的打卡信息获取失败，可能是打卡更新了或网络不稳定，请查看后台打卡日志输出");
             statusCode.setStatus(-1);
             return statusCode;
         }
@@ -163,6 +218,7 @@ public class ClockinService implements Closeable {
     public void close() {
         try {
             client.close();
+
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }

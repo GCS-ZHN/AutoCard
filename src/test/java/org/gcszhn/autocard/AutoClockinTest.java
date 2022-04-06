@@ -35,7 +35,15 @@ public class AutoClockinTest extends AppTest {
     }
     @Test
     public void getPageTest() {
-        Assert.assertNotNull(autoCard.getPage(trueZjuPassPortUser, trueZjuPassPortPass));
+        try {
+            for (int i = 0; i < 2; i++) {
+                String page = autoCard.getPage(trueZjuPassPortUser, trueZjuPassPortPass);
+                Assert.assertNotNull(page);
+                Assert.assertTrue(autoCard.formValidation(page));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     @Test
     public void getOldInfoTest() {

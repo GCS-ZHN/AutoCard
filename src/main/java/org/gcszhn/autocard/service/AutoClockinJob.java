@@ -98,6 +98,7 @@ public class AutoClockinJob implements Job {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtils.printMessage(e.getMessage(), LogUtils.Level.ERROR);
         }
     }

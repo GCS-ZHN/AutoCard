@@ -23,5 +23,6 @@
             "cron":"0 10 0 * * ? *",
             "delay":true
         }
-    ]
+    ],
+    "formvalidation": true
 }
