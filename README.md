@@ -9,7 +9,7 @@
 </div>
 
 ## 一、项目概述
-本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置，支持利用github action。支持钉钉和邮箱推送打卡结果。如果没有服务器资源，请跳至[基于github-action的使用](#基于github-action的使用)。
+本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置，支持利用github action。支持钉钉和邮箱推送打卡结果。如果没有服务器资源，请跳至[三、基于github-action的使用](#三基于github-action的使用)。
 
 ## 二、基于自建平台的使用
 **STEP 1 用来跑程序的设备**
@@ -242,7 +242,7 @@ powershell build.ps1  ## windows
 该版本修正了2021年11月9日学校健康打卡平台前端格式变换引起的BUG，同时在打卡信息提示上引入了当前打卡地点的提示。自动打卡是作用是解放手动，但若信息变化，请如实手动打卡更改。
 
 ### v1.3.6
-近期，直接登录https://zjuam.zju.edu.cn/cas/login，即使登录成功，也无法顺利进入service.zju.edu.cn，从而导致Connection Timeout情况的出现而打卡失败，因此做出此次更新。
+近期，直接登录[浙大通行证](https://zjuam.zju.edu.cn/cas/login)，即使登录成功，也无法顺利进入[我的浙大服务](service.zju.edu.cn)，从而导致Connection Timeout情况的出现而打卡失败，因此做出此次更新。
 
 ### v1.3.5
 引入了打卡的随机延时，使得每天打卡时间相对不固定。
