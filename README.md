@@ -1,10 +1,13 @@
 <h1 style="text-align: center">浙江大学自动健康打卡AutoCard</h1>
 <div style="text-align: center">
 
-![AUR](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)
-![star](https://gitee.com/GCSZHN/AutoCard/badge/star.svg?theme=white)
-![GitHub stars](https://img.shields.io/github/stars/GCS-ZHN/AutoCard.svg?style=social&label=Stars)
-![GitHub forks](https://img.shields.io/github/forks/GCS-ZHN/AutoCard.svg?style=social&label=Fork)
+![AUR](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
+![Java](https://img.shields.io/badge/Java%2014.0.2-passing-success.svg)
+![Maven](https://img.shields.io/badge/Maven%203.6.3-building-success.svg)
+![Spring](https://img.shields.io/badge/Springboot-1.5.9-blue.svg)
+[![GitHub stars](https://img.shields.io/github/stars/GCS-ZHN/AutoCard.svg?style=social&label=Stars)](https://github.com/GCS-ZHN/AutoCard/)
+[![GitHub forks](https://img.shields.io/github/forks/GCS-ZHN/AutoCard.svg?style=social&label=Fork)](https://github.com/GCS-ZHN/AutoCard/)
+[![Gitee star](https://gitee.com/GCSZHN/AutoCard/badge/star.svg?theme=white)](https://gitee.com/GCSZHN/AutoCard/)
 
 </div>
 
