@@ -1,12 +1,17 @@
 name: schedule
 
-# 当push到main分支和定时时间时触发任务
+# 任务触发
 on:
+  # 当 提交到当前仓库时立即运行
   push:
     branches: [ main ]
   schedule:
     # 东八区09:00，约莫有延时10~20，看github服务器情况
     - cron: ' 0 1 * * *'
+  
+  # 当star当前仓库时立即执行
+  watch:
+    types: [started]
 
 jobs:
   # 自动打卡任务
@@ -23,7 +28,14 @@ jobs:
         with:
            distribution: 'temurin'
            java-version: '17'
-
+      
+      # 缓存信息，当缓存发生变化时，请修改key值
+      - name: "Cache autocard cache file"
+        uses: actions/cache@v3
+        with: 
+          key: "autocard_cache"
+          path: "action/autocard_cache.json"
+            
       # 执行打卡
       - name: "Run AutoCard"
         env: 

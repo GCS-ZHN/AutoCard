@@ -57,8 +57,10 @@ public class AppConfig implements EnvironmentAware {
         LogUtils.printMessage("Test mode is " + testMode, LogUtils.Level.DEBUG);
         try (FileInputStream fis = new FileInputStream(APP_CACHE)) {
             appCache = JSON.parseObject(new String(fis.readAllBytes(), APP_CHARSET));
+            LogUtils.printMessage("缓存加载成功", LogUtils.Level.DEBUG);
         } catch (Exception e) {
             appCache = new JSONObject();
+            LogUtils.printMessage("缓存加载失败", LogUtils.Level.DEBUG);
         }
     }
     /**
@@ -169,6 +171,7 @@ public class AppConfig implements EnvironmentAware {
     public void cache() {
         try {
             JSON.writeJSONString(new FileOutputStream(APP_CACHE), APP_CHARSET, appCache);
+            LogUtils.printMessage("保存缓存成功", LogUtils.Level.DEBUG);
         } catch (Exception e) {
             LogUtils.printMessage("保存缓存失败", LogUtils.Level.ERROR);
         }
