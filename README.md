@@ -8,10 +8,10 @@
 
 </div>
 
-## 项目概述
+## 一、项目概述
 本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置，支持利用github action。支持钉钉和邮箱推送打卡结果。如果没有服务器资源，请跳至[基于github-action的使用](#基于github-action的使用)。
 
-## 基于自建平台的使用
+## 二、基于自建平台的使用
 **STEP 1 用来跑程序的设备**
 
 定时打卡任务意味着程序需要一直保持运行，因此个人建议将项目运行在一台服务器上。阿里云、华为云、腾讯云等都提供许多服务器租赁。当然，你要是保持个人电脑一直不关，那么用个人电脑也OK。
@@ -132,7 +132,42 @@ bash startup.sh              # 方式二，运行上面说的shell脚本启动�
 
 ![方式一截图](templete/fig1.png)
 
-## 额外参数
+
+## 三、基于github action的使用
+### 方式一：使用GitHub的仓库密钥
+Fork本项目，在fork后的仓库里”Setttings > Secrets > Actions > New repository secret“添加下列仓库密钥（也是本地运行时的系统环境变量）。
+- AUTOCARD_USER  打卡的用户
+- AUTOCARD_PWD  打卡的密码
+- AUTOCARD_DINGTALK_URL 打卡的钉钉推送URL
+- AUTOCARD_DINGTALK_SECRET 打卡的钉钉推送密钥
+- AUTOCARD_DELAY 是否随机延迟打卡
+上述环境变量与前述配置文件的参数对应。AutoCard会读取这些环境变量，配置打卡用户。其相较于配置文件的优点在于，配置文件是在github开源显示的，二上述环境变量是加密的。但不支持多个账号配置。
+![github环境变量](templete/env.png)
+
+如需修改定时，请修改.github/workflows/schedule.yml里的cron表达式，默认设定北京时间09:00。注意github用的是UTC标准时间，而中国是东八区。如果AutoCard项目有更新，可以点击绿色code按钮下面的**Fetch upstream**来拉取更新。
+
+### 方式二：使用json配置文件
+使用github的导入功能新建自己的AutoCard仓库。在action/config/application.json下添加添加如前文配置即可。此时注意将项目闭源。推荐使用方式一。
+
+### 注意事项
+
+注意：**请仓库检查开启了github action功能**，如果没有，请在当前项目的Settings>Actions>General下"allow all actions and reusable workflows"和点击Actions > schedule下启用workflows。（没有开启的页面有文字提示开启）
+
+当action运行时，可以在项目的**Actions**选项下看到schedule这个工作流的运行记录，点击进去可以看到**Run AutoCard**下面就是程序执行日志。目前无法成功发送通知邮件，但不影响打卡实现。
+![action记录](templete/action.png)
+
+如果想立即运行action，只需要star一下自己的项目即可触发。如果学校打卡表单有更新，请修改`.github/workflows/schedule.yml`下面的key值来更新缓存，如需要关闭表单更新检查，参考前文配置`formvalidation:false`。
+```yml
+      # 缓存信息
+      - name: "Cache autocard cache file"
+        uses: actions/cache@v3
+        with: 
+          key: "autocard_cache" # 当缓存发生变化时，请修改key值，旧的key理论上会在1周后失效
+          path: "action/autocard_cache.json"
+```
+其他注意事项与前面一致。使用github action打卡，邮件推送在github action中不可使用。
+
+## 四、额外参数
 - app.autoCard.cronExpresssion
 
 该参数可以统一修改了默认的cron表达式。每个用户如果配置各自的cron，那么定时任然按照用户配置。注意示例中的引号。
@@ -150,7 +185,7 @@ java -jar autocard-XXX.jar --app.zjuClient.cookieCached=true
 
 该参数指定为true时，即代表立即运行打卡任务，结束后自动退出程序。配置github action的定时功能，可以实现定时打卡。
 
-## 自己打包
+## 五、自己打包
 若用户需要使用低版本如jdk 1.8，需要在对应版本（安装对应版本jdk并修改pom.xml中版本信息）下重新编译打包maven项目（要求用户得安装了[maven](https://maven.apache.org/download.cgi)），建议配置maven工具的镜像为阿里云（这样首次打包时下载依赖库会快一点，[阿里云教程](https://maven.aliyun.com/mvn/guide)）。
 
 1. 克隆或下载本项目
@@ -175,42 +210,16 @@ bash build.sh         ## linux
 powershell build.ps1  ## windows
 ```
 根据平台，运行打包脚本。会产生一个release子文件夹。不过个人没有macOS，故没有编写macOS打包脚本，用户可以直接执行`mvn package spring-boot:repackage`打包生成jar文件，然后按照前面的目录结构放置。
-## 基于github action的使用
-### 使用GitHub的仓库密钥
-Fork本项目，在fork后的仓库里”Setttings > Secrets > Actions > New repository secret“添加下列仓库密钥（也是本地运行时的系统环境变量）。
-- AUTOCARD_USER  打卡的用户
-- AUTOCARD_PWD  打卡的密码
-- AUTOCARD_DINGTALK_URL 打卡的钉钉推送URL
-- AUTOCARD_DINGTALK_SECRET 打卡的钉钉推送密钥
-- AUTOCARD_DELAY 是否随机延迟打卡
-上述环境变量与前述配置文件的参数对应。AutoCard会读取这些环境变量，配置打卡用户。其相较于配置文件的优点在于，配置文件是在github开源显示的，二上述环境变量是加密的。但不支持多个账号配置。
-![github环境变量](templete/env.png)
 
-如需修改定时，请修改.github/workflows/run.yml里的cron表达式，默认设定北京时间09:00。注意github用的是UTC标准时间，而中国是东八区。
-
-### 使用json配置文件
-使用github的导入功能新建自己的AutoCard仓库。在action/config/application.json下添加添加如前文配置即可。此时注意将项目闭源。
-
-### 注意事项
-
-注意：**请仓库开启了github action功能**，如果没有，请在当前项目的Settings>Actions>General下"allow all actions and reusable workflows"。
-
-当action运行时，可以在项目的**Actions**选项下看到schedule这个工作流的运行记录，点击进去可以看到**Run AutoCard**下面就是程序执行日志。目前无法成功发送通知邮件，但不影响打卡实现。
-![action记录](templete/action.png)
-
-如果想立即运行action，只需要对自己项目下的任意文件进行在线修改并提交即可。
-
-其他注意事项与前面一致。使用github action打卡，邮件推送在github action中不可使用。
-
-## 可能的问题
+## 六、可能的问题
 `java.lang.reflect.InaccessibleObjectException`
 
 这是与java模块化有关的问题，采用java 16等很新的java版本可能会抛出，解答详细请看[相关issue](https://gitee.com/GCSZHN/AutoCard/issues/I42IF9)。修改时请将startup.sh中的java命令一并修改。
 
-## 注意
+## 七、注意
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
-## 更新记录
+## 八、更新记录
 ### v1.4.3
 支持对健康打卡进行表单数据校验，检测健康打卡表单是否更新，当表单校验不通过，意味着健康打卡已经更新，请清除数据缓存`autocard_cache.json`文件并重启打卡程序。例如2022年4月6日浙江大学对表单有所更新。
 
@@ -244,9 +253,10 @@ Fork本项目，在fork后的仓库里”Setttings > Secrets > Actions > New rep
 ### v1.3.3
 2021年8月5日，学校健康打卡平台代码逻辑有变化（感兴趣去看一下它JS源码），AutoCard进行针对性升级。原先版本会一直提示重复打卡。
 
-## 更新计划
+## 九、更新计划
 - [ ] 支持从命令行获取配置信息
 - [X] 支持利用github仓库enivronment获取配置
+- [ ] 支持Sock5代理
 
-## 反馈
+## 十、反馈
 任何使用问题，欢迎加入[Telegram交流群](https://t.me/zjuers)交流。
