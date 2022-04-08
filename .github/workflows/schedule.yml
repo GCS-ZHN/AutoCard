@@ -30,7 +30,8 @@ jobs:
           upstream_sync_repo: GCS-ZHN/AutoCard
           upstream_sync_branch: main
           target_sync_branch: main
-          git_pull_args: '-s recursive -Xtheirs'
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          upstream_pull_args: '-s recursive -Xtheirs'
       # 安装java环境
       - name: "Setup Java"
         uses: actions/setup-java@v2
