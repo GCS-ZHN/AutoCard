@@ -11,6 +11,7 @@
 
 </div>
 
+---
 ## 一、项目概述
 本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置，支持利用github action。支持钉钉和邮箱推送打卡结果。如果没有服务器资源，请跳至[三、基于github-action的使用](#三基于github-action的使用)。
 
@@ -23,12 +24,12 @@
 
 正如所说，本项目是一个java项目（src文件夹源码文件是*.java），因此需要用户事先安装java语言。作者的发行版用的是jdk-14.0.2，即java SE 14.0.2，[官方下载地址](https://www.oracle.com/java/technologies/javase/jdk14-archive-downloads.html)。根据自己设备的操作系统选择对应的安装包即可。
 
-|安装包扩展名 |对应系统                  |
-|:----------|:------------------------|
-|deb        |Linux发行版的Debian/Ubuntu|
-|rpm        |Linux发行版的CentOS       |
-|dmg        |MacOS                    |
-|exe        |Win                      |
+|安装包扩展名 |对应系统                                  |
+|:--------------|:--------------------------------|
+|deb               |Linux发行版的Debian/Ubuntu|
+|rpm               |Linux发行版的CentOS             |
+|dmg              |MacOS                                   |
+|exe                |Win                                        |
 
 **STEP 3 下载作者提供的发行版**
 

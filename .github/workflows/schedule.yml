@@ -21,7 +21,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+      #上游同步
+      - name: Sync with upstream
+        if: github.repository != 'GCS-ZHN/AutoCard'
+        continue-on-error: true
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
+        with:
+          upstream_sync_repo: GCS-ZHN/AutoCard
+          upstream_sync_branch: main
+          target_sync_branch: main
+          git_pull_args: '-s recursive -Xtheirs'
       # 安装java环境
       - name: "Setup Java"
         uses: actions/setup-java@v2
