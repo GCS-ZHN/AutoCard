@@ -220,9 +220,16 @@ powershell build.ps1  ## windows
 根据平台，运行打包脚本。会产生一个release子文件夹。不过个人没有macOS，故没有编写macOS打包脚本，用户可以直接执行`mvn package spring-boot:repackage`打包生成jar文件，然后按照前面的目录结构放置。
 
 ## 六、可能的问题
-`java.lang.reflect.InaccessibleObjectException`
+- java.lang.reflect.InaccessibleObjectException
 
 这是与java模块化有关的问题，采用java 16等很新的java版本可能会抛出，解答详细请看[相关issue](https://gitee.com/GCSZHN/AutoCard/issues/I42IF9)。修改时请将startup.sh中的java命令一并修改。
+
+- refusing to allow a GitHub App to create or update workflow `.github/workflows/schedule.yml` without `workflows` permission
+
+如果在action的日志的Sync with upstream看到上述错误，那是因为在自动获取最新AutoCard时，AutoCard作者修改了.github文件夹下面的东西，而更新当前仓库使用的默认授权token是secrets.GITHUB_TOKEN，它没有修改这个文件夹下面workflow的权限。
+解决这个问题有两个办法：
+1.  用上文提到的Fetch upstream手动完成此次更新(治标不治本)
+2.  修改`.github/workflows/schedule.yml`文件，将其中的`target_repo_token: ${{ secrets.GITHUB_TOKEN }}`使用的token（令牌）换成扩大权限的自定义token，详细介绍和自定义令牌方法参见[Github官方文档](https://docs.github.com/cn/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token)。配置新令牌的权限同[相关issue](https://github.com/aormsby/Fork-Sync-With-Upstream-action/issues/12)那样。然后将私人令牌作为前文一样的密钥设置，利用设置了一个MY_TOKEN的密钥，然后将上面的`GITHUB_TOKEN`替换为`MY_TOKEN`。
 
 ## 七、注意
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
