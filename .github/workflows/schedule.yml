@@ -21,6 +21,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       #上游同步
       - name: Sync with upstream
         if: github.repository != 'GCS-ZHN/AutoCard'
@@ -32,6 +33,7 @@ jobs:
           target_sync_branch: main
           target_repo_token: ${{ secrets.GITHUB_TOKEN }}
           upstream_pull_args: '-s recursive -Xtheirs'
+
       # 安装java环境
       - name: "Setup Java"
         uses: actions/setup-java@v2
@@ -43,8 +45,12 @@ jobs:
       - name: "Cache autocard cache file"
         uses: actions/cache@v3
         with: 
-          key: "autocard_cache"
+          key: autocard_cache-${{ hashFiles('action/config/application.json') }}-${{ hashFiles('action/autocard.jar') }}-${{ secrets.AUTOCARD_CACHE_FLAG }}
           path: "action/autocard_cache.json"
+
+      # 查看运行时目录
+      - name: "View workflow filesystem"
+        run: ls -R action
             
       # 执行打卡
       - name: "Run AutoCard"

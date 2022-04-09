@@ -139,16 +139,21 @@ bash startup.sh              # 方式二，运行上面说的shell脚本启动�
 
 ## 三、基于github action的使用
 ### 方式一：使用GitHub的仓库密钥
-Fork本项目，在fork后的仓库里”Setttings > Secrets > Actions > New repository secret“添加下列仓库密钥（也是本地运行时的系统环境变量）。
-- AUTOCARD_USER  打卡的用户
-- AUTOCARD_PWD  打卡的密码
-- AUTOCARD_DINGTALK_URL 打卡的钉钉推送URL
-- AUTOCARD_DINGTALK_SECRET 打卡的钉钉推送密钥
-- AUTOCARD_DELAY 是否随机延迟打卡
+Fork本项目（右上角，喜欢的小伙伴麻烦顺手点star支持一下），在fork后的仓库里”Setttings > Secrets > Actions > New repository secret“添加下列仓库密钥（也是本地运行时的系统环境变量）。
+
+- **AUTOCARD_USER**  打卡的用户
+- **AUTOCARD_PWD**  打卡的密码
+- **AUTOCARD_DINGTALK_URL** 打卡的钉钉推送URL
+- **AUTOCARD_DINGTALK_SECRET** 打卡的钉钉推送密钥
+- **AUTOCARD_DELAY** 是否随机延迟打卡
+- **AUTOCARD_CACHE_FLAG** 用于程序缓存输出提供一个索引，任意值即可，例如设为1
+
 上述环境变量与前述配置文件的参数对应。AutoCard会读取这些环境变量，配置打卡用户。其相较于配置文件的优点在于，配置文件是在github开源显示的，二上述环境变量是加密的。但不支持多个账号配置。
 ![github环境变量](templete/env.png)
 
-如需修改定时，请修改.github/workflows/schedule.yml里的cron表达式，默认设定北京时间09:00。注意github用的是UTC标准时间，而中国是东八区。如果AutoCard项目有更新，可以点击绿色code按钮下面的**Fetch upstream**来拉取更新。
+如需修改定时，请修改.github/workflows/schedule.yml里的cron表达式，默认设定北京时间09:00。注意github用的是UTC标准时间，而中国是东八区。如果AutoCard项目有更新，可以点击绿色code按钮下面的**Fetch upstream**来拉取更新。当然最新版本的github action具备自动拉取更新的功能。
+
+![fetch_upstream](templete/upstream.png)
 
 ### 方式二：使用json配置文件
 使用github的导入功能新建自己的AutoCard仓库。在action/config/application.json下添加添加如前文配置即可。此时注意将项目闭源。推荐使用方式一。
@@ -160,16 +165,15 @@ Fork本项目，在fork后的仓库里”Setttings > Secrets > Actions > New rep
 当action运行时，可以在项目的**Actions**选项下看到schedule这个工作流的运行记录，点击进去可以看到**Run AutoCard**下面就是程序执行日志。目前无法成功发送通知邮件，但不影响打卡实现。
 ![action记录](templete/action.png)
 
-如果想立即运行action，只需要star一下自己的项目即可触发。如果学校打卡表单有更新，请修改`.github/workflows/schedule.yml`下面的key值来更新缓存，如需要关闭表单更新检查，参考前文配置`formvalidation:false`。
-```yml
-      # 缓存信息
-      - name: "Cache autocard cache file"
-        uses: actions/cache@v3
-        with: 
-          key: "autocard_cache" # 当缓存发生变化时，请修改key值，旧的key理论上会在1周后失效
-          path: "action/autocard_cache.json"
-```
-其他注意事项与前面一致。使用github action打卡，邮件推送在github action中不可使用。
+- 如果想立即运行action，只需要star一下自己的项目即可触发。
+- -如果学校打卡表单有更新，请修改上述的`AUTOCARD_CACHE_FLAG`这个密钥值（只要不和上一次一样就行，比如输入新的值为2，前一次为1）
+- 如需要关闭表单更新检查，参考前文配置`formvalidation:false`。
+- 使用github action打卡，邮件推送在github action中不可使用。
+
+程序缓存在以下三种情况会被清除
+- action/config/application.json配置文件被修改
+- action/autocard.jar程序包被更新
+- AUTOCARD_CACHE_FLAG值被修改
 
 ## 四、额外参数
 - app.autoCard.cronExpresssion
@@ -259,8 +263,8 @@ powershell build.ps1  ## windows
 
 ## 九、更新计划
 - [ ] 支持从命令行获取配置信息
-- [X] 支持利用github仓库enivronment获取配置
+- [X] 支持利用github仓库secrets获取配置
 - [ ] 支持Sock5代理
 
 ## 十、反馈
-任何使用问题，欢迎加入[Telegram交流群](https://t.me/zjuers)交流。
+任何使用问题，欢迎加入[Telegram交流群](https://t.me/zjuers)交流。喜欢的小伙伴就给个star支持一下吧。
