@@ -16,9 +16,11 @@
 package org.gcszhn.autocard;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Base64;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -56,6 +58,20 @@ public class ZJUClientTest extends AppTest {
     public void getUserInfoTest() {
         if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
             System.out.println(client.getUserInfo());
+        }
+    }
+    @Test
+    public void getUserPhotoTest() {
+        if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
+            String photo = client.getUserPhoto();
+            if (photo != null) {
+                try (
+                    FileOutputStream fileOutputStream = new FileOutputStream(trueZjuPassPortUser+".gif")) {
+                    fileOutputStream.write(Base64.getDecoder().decode(photo));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
     @Test
