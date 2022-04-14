@@ -16,20 +16,30 @@
 package org.gcszhn.autocard;
 
 import org.gcszhn.autocard.service.DingTalkHookService;
+
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DingTalkHookTest extends AppTest {
     @Autowired
     DingTalkHookService service;
+    private String encrypt_url = null;
+
+    @Before
+    public void addSignature() {
+        encrypt_url = service.getSignature(SECRET, PAYLOAD_URL);
+        System.out.println(encrypt_url);
+    }
 
     @Test
     public void sendTextTest() {
-        String baseUrl = "https://oapi.dingtalk.com/robot/send?access_token=***";
-        String secret = "SEC****";
-        String payLoadUrl = service.getSignature(secret, baseUrl);
-        System.out.println(payLoadUrl);
-        System.out.println( service.sendText(payLoadUrl, "打卡信息获取失败"));
+        Assert.assertEquals(service.sendText(encrypt_url, "打卡信息获取失败", true).getStatus(), 0);
     }
-    
+
+    @Test
+    public void sendMarkdownTest() {
+        Assert.assertEquals(service.sendMarkdown(encrypt_url, "杭州天气", "### 杭州天气 \n> 9度，西北风1级，空气良89，相对温度73%\n> ![screenshot](https://img.alicdn.com/tfs/TB1NwmBEL9TBuNjy1zbXXXpepXa-2400-1218.png)\n> ###### 10点20分发布 [天气](https://www.dingalk.com) \n", true).getStatus(), 0);
+    }
 }
