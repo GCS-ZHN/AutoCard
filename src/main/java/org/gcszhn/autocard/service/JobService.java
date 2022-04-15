@@ -15,7 +15,6 @@
  */
 package org.gcszhn.autocard.service;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Date;
 
@@ -37,10 +36,10 @@ import org.springframework.stereotype.Service;
 /**
  * 定时任务的服务
  * @author Zhang.H.N
- * @version 1.0
+ * @version 1.1
  */
 @Service
-public class JobService implements Closeable {
+public class JobService implements AppService {
     /**任务调度器 */
     private Scheduler scheduler;
     /**初始化任务服务，创建任务调度器 */
@@ -98,6 +97,5 @@ public class JobService implements Closeable {
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
-        
     }
 }
