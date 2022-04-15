@@ -16,6 +16,7 @@
 package org.gcszhn.autocard.service;
 
 import org.gcszhn.autocard.AppTest;
+import org.gcszhn.autocard.utils.StatusCode;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,21 +29,21 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class AutoCardServiceTest extends AppTest {
     @Autowired
-    AutoCardService autoCard;
+    AutoCardService autoCardService;
 
     @Autowired
     DingTalkHookService dingTalkHookService;
     @After
     public void afterTest() {
-        autoCard.close();
+        autoCardService.close();
     }
     @Test
     public void getPageTest() {
         try {
             for (int i = 0; i < 2; i++) {
-                String page = autoCard.getPage(trueZjuPassPortUser, trueZjuPassPortPass);
+                String page = autoCardService.getPage(trueZjuPassPortUser, trueZjuPassPortPass);
                 Assert.assertNotNull(page);
-                Assert.assertTrue(autoCard.formValidation(page));
+                Assert.assertTrue(autoCardService.formValidation(page));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,10 +51,11 @@ public class AutoCardServiceTest extends AppTest {
     }
     @Test
     public void getOldInfoTest() {
-        System.out.println(autoCard.getOldInfo(trueZjuPassPortUser, trueZjuPassPortPass));
+        System.out.println(autoCardService.getOldInfo(trueZjuPassPortUser, trueZjuPassPortPass));
     }
     @Test
     public void submitReportTest() {
-        Assert.assertNotEquals(-1, autoCard.submit(trueZjuPassPortUser, trueZjuPassPortPass));
+        StatusCode statusCode = autoCardService.submit(trueZjuPassPortUser, trueZjuPassPortPass);
+        Assert.assertNotEquals(statusCode.getStatus(), -1);
     }
 }

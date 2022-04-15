@@ -15,17 +15,18 @@
  */
 package org.gcszhn.autocard.service;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Base64;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import org.gcszhn.autocard.AppTest;
+import org.gcszhn.autocard.utils.ImageUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.After;
@@ -65,15 +66,15 @@ public class ZJUClientServiceTest extends AppTest {
         if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
             String photo = client.getUserPhoto();
             if (photo != null) {
-                try (
-                    FileOutputStream fileOutputStream = new FileOutputStream(trueZjuPassPortUser+".gif")) {
-                    fileOutputStream.write(Base64.getDecoder().decode(photo));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                ImageUtils.write(photo, new File(trueZjuPassPortUser+ "-raw.gif"));
+                BufferedImage image = ImageUtils.toImage(photo);
+                ImageUtils.write(image, "gif", new File(trueZjuPassPortUser+ "-t.gif"));
+                image = ImageUtils.resize(image, 75, 100);
+                ImageUtils.write(image, "gif", new File(trueZjuPassPortUser+ "-resize.gif"));
             }
         }
     }
+    
     @Test
     public void loginCourseTest() throws FileNotFoundException {
         String userUrl="https://courses.zju.edu.cn/user/index";

@@ -91,7 +91,22 @@ public class AutoCardJob implements Job {
                 if (dingtalkSecret!=null && !dingtalkSecret.isEmpty()) {
                     dingtalkURL = dingTalkHookService.getSignature(dingtalkSecret, dingtalkURL);
                 }
-                StatusCode status = dingTalkHookService.sendText(dingtalkURL, "【健康打卡通知】" + statusCode.getMessage());
+                StatusCode status;
+                if (statusCode.getJsonMessage() != null) {
+                    String message = String.format("### 【健康打卡通知】\n%s\n![photo](%s)",
+                        statusCode.getJsonMessage().getString("message"),
+                        statusCode.getJsonMessage().getString("photo"));
+
+                    status = dingTalkHookService.sendMarkdown(dingtalkURL, "【健康打卡通知】", message);
+                         
+                } else {
+                    status = dingTalkHookService.sendMarkdown(
+                        dingtalkURL, 
+                        "【健康打卡通知】", 
+                        String.format("### 【健康打卡通知】\n%s",
+                            statusCode.getMessage()));
+                }
+                
                 if (status.getStatus() == 0) {
                     LogUtils.printMessage("钉钉推送成功");
                 } else {

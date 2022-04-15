@@ -27,6 +27,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.gcszhn.autocard.AppConfig;
 import org.gcszhn.autocard.utils.DigestUtils;
+import org.gcszhn.autocard.utils.ImageUtils;
 import org.gcszhn.autocard.utils.LogUtils;
 import org.gcszhn.autocard.utils.StatusCode;
 import org.jsoup.Jsoup;
@@ -207,8 +208,27 @@ public class AutoCardService implements AppService {
             case 0:{level= LogUtils.Level.INFO;break;}
             case 1:{level= LogUtils.Level.ERROR;break;}
         }
+        JSONObject userInfo = client.getUserInfo();
+        String message = String.format("%s，你好，今日自动健康打卡状态：%s，打卡地区为：%s（如若区域不符，请次日手动打卡更改地址）",
+            userInfo==null? username: userInfo.getString("userName"), 
+            resp.getString("m"),
+            area);
         statusCode.setStatus(status);
-        statusCode.setMessage(client.getUserInfo().getString("userName")+"您好，"+resp.getString("m")+"，打卡地区为："+ area+"（如若区域不符，请次日手动打卡更改地址）");
+        statusCode.setMessage(message);
+
+        if (appConfig.isEnablePreview()) {
+            JSONObject jsonMessage = new JSONObject();
+            jsonMessage.put("id", username);
+            jsonMessage.put("name", userInfo==null? username: userInfo.getString("userName"));
+            jsonMessage.put("message", message);
+            String photo = client.getUserPhoto();
+            if (photo != null) {
+                photo = ImageUtils.toBase64(ImageUtils.resize(ImageUtils.toImage(photo), 75, 100), "gif");
+                jsonMessage.put("photo", "data:image/gif;base64,"+photo);
+            }
+            statusCode.setJsonMessage(jsonMessage);
+        }
+
         LogUtils.printMessage(resp.getString("m"), level);
         LogUtils.printMessage("地点："+area);
         return statusCode;
@@ -217,10 +237,9 @@ public class AutoCardService implements AppService {
     public void close() {
         try {
             client.close();
-            LogUtils.printMessage("Service stopped", LogUtils.Level.INFO);
-
+            System.out.println("AutoCardService stopped");
         } catch (Exception e) {
-            LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+            e.printStackTrace();
         }
     }
     /**
