@@ -15,27 +15,9 @@
  */
 package org.gcszhn.autocard.service;
 
-import org.gcszhn.autocard.utils.StatusCode;
+import java.io.Closeable;
 
 /**
- * 通用的Webhook服务接口
- * @author Zhang.H.N
+ * AutoCard应用统一服务接口
  */
-public interface WebHookService extends AppService {
-    /**
-     * 发送文本消息
-     * @param payLoadURL 目标webhook
-     * @param info 文本消息
-     * @return 发送状态对象
-     */
-    public StatusCode sendText(String payLoadURL, String info);
-
-    /**
-     * 发送markdown格式消息
-     * @param payLoadURL 目标webhook
-     * @param title 消息标题
-     * @param content 消息内容
-     * @return 发送状态对象
-     */
-    public StatusCode sendMarkdown(String payLoadURL, String title, String content);
-}
+public interface AppService extends Closeable {}

@@ -15,6 +15,7 @@
  */
 package org.gcszhn.autocard.service;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 
 import javax.crypto.Mac;
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DingTalkHookService implements WebHookService {
     /**Http服务 */
-    private HttpClientUtils utils = new HttpClientUtils();
+    private HttpClientUtils client = new HttpClientUtils();
     /**Dingtalk robots基础API */
     private static final String DINGTALK_URL = "https://oapi.dingtalk.com/robot/send?access_token=";
     /**
@@ -56,7 +57,7 @@ public class DingTalkHookService implements WebHookService {
             jsonObject.put(type, message);
             jsonObject.put("at", new JSONObject());
             jsonObject.getJSONObject("at").put("isAtAll", isAtAll);
-            JSONObject res = JSON.parseObject(utils.entityToString(utils.getResponseContent(utils.doPost(payLoadURL, jsonObject.toJSONString(), "application/json"))));
+            JSONObject res = JSON.parseObject(client.entityToString(client.getResponseContent(client.doPost(payLoadURL, jsonObject.toJSONString(), "application/json"))));
             statusCode.setStatus(res.getIntValue("errcode"));
             statusCode.setMessage(res.getString("errmsg"));
         }
@@ -136,5 +137,10 @@ public class DingTalkHookService implements WebHookService {
             statusCode.setMessage("钉钉机器人URL合法");
         }
         return statusCode;
+    }
+
+    @Override
+    public void close() throws IOException {
+        client.close();
     }
 }

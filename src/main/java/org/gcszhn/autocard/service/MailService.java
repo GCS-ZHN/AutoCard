@@ -16,6 +16,7 @@
 package org.gcszhn.autocard.service;
 
 
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -40,7 +41,7 @@ import lombok.Setter;
  * @author Zhang.H.N
  * @version 1.1
  */
-public class MailService {
+public class MailService implements AppService {
     /**服务是否可用 */
     private @Setter boolean serviceAvailable;
     /**邮件会话对象 */
@@ -134,4 +135,6 @@ public class MailService {
                 }
         }
     }
+    @Override
+    public void close() throws IOException {}
 }

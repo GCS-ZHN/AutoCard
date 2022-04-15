@@ -15,7 +15,6 @@
  */
 package org.gcszhn.autocard.service;
 
-import java.io.Closeable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +44,7 @@ import org.springframework.stereotype.Service;
  */
 @Scope("prototype")
 @Service
-public class AutoCardService implements Closeable {
+public class AutoCardService implements AppService {
     /**时间格式化 */
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMdd");
     /**表达校验数据缓存关键字 */
@@ -218,6 +217,7 @@ public class AutoCardService implements Closeable {
     public void close() {
         try {
             client.close();
+            LogUtils.printMessage("Service stopped", LogUtils.Level.INFO);
 
         } catch (Exception e) {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
