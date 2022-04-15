@@ -28,10 +28,10 @@ import org.quartz.JobExecutionException;
  * @author Zhang.H.N
  * @version 1.1
  */
-public class AutoClockinJob implements Job {
+public class AutoCardJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        ClockinService cardService = SpringUtils.getBean(ClockinService.class);
+        AutoCardService cardService = SpringUtils.getBean(AutoCardService.class);
         MailService mailService = SpringUtils.getBean(MailService.class);
         DingTalkHookService dingTalkHookService = SpringUtils.getBean(DingTalkHookService.class);
         execute(context.getMergedJobDataMap(), mailService, cardService, dingTalkHookService);
@@ -39,7 +39,7 @@ public class AutoClockinJob implements Job {
     public static void execute(
         JobDataMap dataMap, 
         MailService mailService, 
-        ClockinService cardService,
+        AutoCardService cardService,
         DingTalkHookService dingTalkHookService) throws JobExecutionException {
         boolean isDelay = dataMap.getBooleanValue("delay");
         String username = dataMap.getString("username");

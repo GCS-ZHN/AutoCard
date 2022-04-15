@@ -13,11 +13,11 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.utils;
 
+import org.gcszhn.autocard.AppTest;
 import org.gcszhn.autocard.service.JobService;
 import org.gcszhn.autocard.service.ZJUClientService;
-import org.gcszhn.autocard.utils.SpringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

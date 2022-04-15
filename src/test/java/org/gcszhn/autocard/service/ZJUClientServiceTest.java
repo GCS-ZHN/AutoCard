@@ -13,7 +13,7 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.service;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,7 +25,7 @@ import java.util.Base64;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import org.gcszhn.autocard.service.ZJUClientService;
+import org.gcszhn.autocard.AppTest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.After;
@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Zhang.H.N
  * @version 1.0
  */
-public class ZJUClientTest extends AppTest {
+public class ZJUClientServiceTest extends AppTest {
     @Autowired
     ZJUClientService client;
     //ZJUClient是prototpye的bean，IOC容器不负责销毁

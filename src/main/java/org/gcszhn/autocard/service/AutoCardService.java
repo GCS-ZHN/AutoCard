@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
  */
 @Scope("prototype")
 @Service
-public class ClockinService implements Closeable {
+public class AutoCardService implements Closeable {
     /**时间格式化 */
     private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMdd");
     /**表达校验数据缓存关键字 */

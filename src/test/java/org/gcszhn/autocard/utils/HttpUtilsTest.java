@@ -13,14 +13,13 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.gcszhn.autocard.utils.HttpClientUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

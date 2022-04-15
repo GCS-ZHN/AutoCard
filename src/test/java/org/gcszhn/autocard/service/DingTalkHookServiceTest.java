@@ -13,16 +13,16 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.service;
 
-import org.gcszhn.autocard.service.DingTalkHookService;
+import org.gcszhn.autocard.AppTest;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DingTalkHookTest extends AppTest {
+public class DingTalkHookServiceTest extends AppTest {
     @Autowired
     DingTalkHookService service;
     private String encrypt_url = null;

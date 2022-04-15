@@ -13,27 +13,22 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.service;
 
-import org.gcszhn.autocard.service.AutoClockinJob;
-import org.gcszhn.autocard.service.JobService;
+import org.gcszhn.autocard.AppTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 定时任务服务测试
+ * 邮件服务测试
  * @author Zhang.H.N
  * @version 1.0
  */
-public class JobServiceTest extends AppTest {
+public class MailServiceTest extends AppTest {
     @Autowired
-    JobService jobService;
+    MailService mailService;
     @Test
-    public void test() throws InterruptedException {
-       synchronized(jobService) {
-        jobService.addJob(AutoClockinJob.class, null, null);
-        jobService.start();
-        jobService.wait(50000); 
-       }
+    public void sendTest() {
+        mailService.sendMail("zhanghn@zju.edu.cn","test", "test", "text/html;charset=utf-8");
     }
 }

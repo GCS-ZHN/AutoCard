@@ -13,9 +13,9 @@
  * See the License for the specific language govering permissions and
  * limitations under the License.
  */
-package org.gcszhn.autocard;
+package org.gcszhn.autocard.service;
 
-import org.gcszhn.autocard.service.ClockinService;
+import org.gcszhn.autocard.AppTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,9 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Zhang.H.N
  * @version 1.0
  */
-public class AutoClockinTest extends AppTest {
+public class AutoCardServiceTest extends AppTest {
     @Autowired
-    ClockinService autoCard;
+    AutoCardService autoCard;
+
+    @Autowired
+    DingTalkHookService dingTalkHookService;
     @After
     public void afterTest() {
         autoCard.close();
