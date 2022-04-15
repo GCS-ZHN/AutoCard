@@ -77,6 +77,8 @@ public class App {
                             cardService.logout();
                         } catch (Exception e) {
                             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+                        } finally {
+                            cardService.close();
                         }
                     } else {
                         String cron = jsonObject.getString("cron");

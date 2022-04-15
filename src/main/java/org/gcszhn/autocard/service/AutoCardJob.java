@@ -31,10 +31,11 @@ import org.quartz.JobExecutionException;
 public class AutoCardJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        AutoCardService cardService = SpringUtils.getBean(AutoCardService.class);
-        MailService mailService = SpringUtils.getBean(MailService.class);
-        DingTalkHookService dingTalkHookService = SpringUtils.getBean(DingTalkHookService.class);
-        execute(context.getMergedJobDataMap(), mailService, cardService, dingTalkHookService);
+        try (AutoCardService cardService = SpringUtils.getBean(AutoCardService.class)) {
+            MailService mailService = SpringUtils.getBean(MailService.class);
+            DingTalkHookService dingTalkHookService = SpringUtils.getBean(DingTalkHookService.class);
+            execute(context.getMergedJobDataMap(), mailService, cardService, dingTalkHookService);
+        }
     }
     public static void execute(
         JobDataMap dataMap, 
