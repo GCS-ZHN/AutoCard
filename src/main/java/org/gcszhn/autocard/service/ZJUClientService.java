@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 /**
  * 访问浙大通行证的客户端
  * @author Zhang.H.N
- * @version 1.1
+ * @version 1.2
  */
 @Scope("prototype")
 @Service
@@ -175,6 +175,10 @@ public class ZJUClientService extends HttpClientUtils {
         LogUtils.printMessage("登录失败 " + username, Level.ERROR);
         return null;
     }
+    /**
+     * 获取用户信息
+     * @return 包含用户信息的json对象
+     */
     public JSONObject getUserInfo() {
         String info = doGetText("https://service.zju.edu.cn");
         if (info != null) {
@@ -193,6 +197,26 @@ public class ZJUClientService extends HttpClientUtils {
         LogUtils.printMessage("No port context found", Level.ERROR);
         return null;
     }
+    /**
+     * 获取用户头像
+     * @return Base64编码的image/gif类型图像
+     */
+    public String getUserPhoto() {
+        JSONObject userInfo = getUserInfo();
+        if (userInfo != null) {
+            String id = userInfo.getString("loginName");
+            if (id == null) return null;
+            doGet("http://mapp.zju.edu.cn/_web/_customizes/pc/public/person.html");
+            String photo = doGetText("http://mapp.zju.edu.cn/getPhotoBase64.do?xgh=" + id);
+            return photo.replaceAll("\\{img=|\\}|\n", "");
+        }
+        return null;
+    }
+    /**
+     * 检查用户信息
+     * @param username 预期用户名
+     * @return 是否一致
+     */
     public boolean checkUserInfo(String username) {
         JSONObject userInfo = getUserInfo();
         if (userInfo != null) {

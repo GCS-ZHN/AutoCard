@@ -53,6 +53,8 @@ public class AppConfig implements EnvironmentAware {
     private JSONObject appConfig;
     /**是否为测试模式 */
     private @Getter boolean testMode = false;
+    /**是否启用预览特性 */
+    private @Getter boolean enablePreview = false;
     public AppConfig() {
         LogUtils.printMessage("Test mode is " + testMode, LogUtils.Level.DEBUG);
         try (FileInputStream fis = new FileInputStream(APP_CACHE)) {
@@ -70,6 +72,7 @@ public class AppConfig implements EnvironmentAware {
     public void setEnvironment(Environment env) {
         loadJSONConfig(env.getProperty("app.autoCard.config"));
         testMode = appConfig.getBooleanValue("testmode");
+        enablePreview = appConfig.getBooleanValue("enablepreview");
 
         // 通过系统环境变量添加单个打卡用户
         

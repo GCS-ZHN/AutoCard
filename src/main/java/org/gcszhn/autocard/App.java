@@ -20,8 +20,8 @@ import java.io.File;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import org.gcszhn.autocard.service.AutoClockinJob;
-import org.gcszhn.autocard.service.ClockinService;
+import org.gcszhn.autocard.service.AutoCardJob;
+import org.gcszhn.autocard.service.AutoCardService;
 import org.gcszhn.autocard.service.DingTalkHookService;
 import org.gcszhn.autocard.service.JobService;
 import org.gcszhn.autocard.service.MailService;
@@ -61,7 +61,7 @@ public class App {
     public void start(
         JobService jobService, 
         MailService mailService, 
-        ClockinService cardService, 
+        AutoCardService cardService, 
         DingTalkHookService dingTalkHookService, 
         AppConfig appConfig) {
         try {
@@ -73,14 +73,16 @@ public class App {
                     JobDataMap jobDataMap = new JobDataMap(jsonObject);
                     if (immediate) {
                         try {
-                            AutoClockinJob.execute(jobDataMap, mailService, cardService, dingTalkHookService);
+                            AutoCardJob.execute(jobDataMap, mailService, cardService, dingTalkHookService);
                             cardService.logout();
                         } catch (Exception e) {
                             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
+                        } finally {
+                            cardService.close();
                         }
                     } else {
                         String cron = jsonObject.getString("cron");
-                        jobService.addJob(AutoClockinJob.class, cron==null?defaultCronExpression:cron, jobDataMap); 
+                        jobService.addJob(AutoCardJob.class, cron==null?defaultCronExpression:cron, jobDataMap); 
                     }
                 }
             });
