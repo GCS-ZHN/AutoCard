@@ -93,9 +93,12 @@ public class AutoCardJob implements Job {
                 }
                 StatusCode status;
                 if (statusCode.getJsonMessage() != null) {
-                    String message = String.format("### 【健康打卡通知】\n%s\n![photo](%s)",
-                        statusCode.getJsonMessage().getString("message"),
-                        statusCode.getJsonMessage().getString("photo"));
+                    String message = "### 【健康打卡通知】\n" + 
+                        statusCode.getJsonMessage().getString("message");
+                    String photo = statusCode.getJsonMessage().getString("photo");
+                    if (photo != null) {
+                        message += "\n![photo](" + photo + ")";
+                    }
 
                     status = dingTalkHookService.sendMarkdown(dingtalkURL, "【健康打卡通知】", message);
                          
