@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DingTalkHookService implements WebHookService {
     /**Http服务 */
-    private HttpClientUtils client = new HttpClientUtils();
+    private HttpClientUtils client = new HttpClientUtils(null);
     /**Dingtalk robots基础API */
     private static final String DINGTALK_URL = "https://oapi.dingtalk.com/robot/send?access_token=";
     /**
@@ -143,6 +143,5 @@ public class DingTalkHookService implements WebHookService {
     public void close() throws IOException {
         client.close();
         System.out.println("DingTalkHookService stopped");
-        //LogUtils.printMessage("Service stopped");
     }
 }
