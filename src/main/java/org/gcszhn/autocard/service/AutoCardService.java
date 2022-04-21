@@ -18,6 +18,7 @@ package org.gcszhn.autocard.service;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -221,11 +222,11 @@ public class AutoCardService implements AppService {
             jsonMessage.put("id", username);
             jsonMessage.put("name", userInfo==null? username: userInfo.getString("userName"));
             jsonMessage.put("message", message);
-            String photo = client.getUserPhoto();
-            if (photo != null) {
-                photo = ImageUtils.toBase64(ImageUtils.resize(ImageUtils.toImage(photo), 75, 100), "gif");
-                jsonMessage.put("photo", "data:image/gif;base64,"+photo);
-            }
+            Optional<String> photo = Optional.ofNullable(client.getUserPhoto());
+            photo.ifPresent((String p)->{
+                p = ImageUtils.toBase64(ImageUtils.resize(ImageUtils.toImage(p), 75, 100), "gif");
+                jsonMessage.put("photo", "data:image/gif;base64,"+p);
+            });
             statusCode.setJsonMessage(jsonMessage);
         }
 

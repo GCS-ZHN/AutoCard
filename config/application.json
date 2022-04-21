@@ -24,5 +24,6 @@
             "delay":true
         }
     ],
-    "formvalidation": true
+    "formvalidation": true,
+    "enablepreview": false
 }

@@ -18,6 +18,7 @@ package org.gcszhn.autocard.service;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -180,8 +181,8 @@ public class ZJUClientService extends HttpClientUtils {
      * @return 包含用户信息的json对象
      */
     public JSONObject getUserInfo() {
-        String info = doGetText("https://service.zju.edu.cn");
-        if (info != null) {
+         Optional<String> infoOp = Optional.ofNullable(doGetText("https://service.zju.edu.cn"));
+         return infoOp.map((String info)->{
             Pattern pattern = Pattern.compile("\"site\": \"(\\w+)\"");
             Matcher matcher = pattern.matcher(info);
             if (matcher.find()) {
@@ -193,24 +194,28 @@ public class ZJUClientService extends HttpClientUtils {
                 }
                 return res.getJSONObject("data");
             }
-        }
-        LogUtils.printMessage("No port context found", Level.ERROR);
-        return null;
+            return null;
+         }).orElseGet(()->{
+            LogUtils.printMessage("账号信息获取失败", Level.ERROR);
+            return null;
+         });
     }
     /**
      * 获取用户头像
      * @return Base64编码的image/gif类型图像
      */
     public String getUserPhoto() {
-        JSONObject userInfo = getUserInfo();
-        if (userInfo != null) {
-            String id = userInfo.getString("loginName");
+        Optional<JSONObject> userInfo = Optional.ofNullable(getUserInfo());
+        return userInfo.map((JSONObject uInfo)->{
+            String id = uInfo.getString("loginName");
             if (id == null) return null;
             doGet("http://mapp.zju.edu.cn/_web/_customizes/pc/public/person.html");
-            String photo = doGetText("http://mapp.zju.edu.cn/getPhotoBase64.do?xgh=" + id);
-            return photo.replaceAll("\\{img=|\\}|\n", "");
-        }
-        return null;
+            Optional<String> photo = Optional.ofNullable(doGetText("http://mapp.zju.edu.cn/getPhotoBase64.do?xgh=" + id));
+            return photo.map((String p)-> p.replaceAll("\\{img=|\\}|\n", "")).orElse(null);
+        }).orElseGet(()->{
+            LogUtils.printMessage("账号照片获取失败", Level.ERROR);
+            return null;
+        });
     }
     /**
      * 检查用户信息
@@ -218,8 +223,8 @@ public class ZJUClientService extends HttpClientUtils {
      * @return 是否一致
      */
     public boolean checkUserInfo(String username) {
-        JSONObject userInfo = getUserInfo();
-        if (userInfo != null) {
+        Optional<JSONObject> userInfoOp = Optional.ofNullable(getUserInfo());
+        Optional<Boolean> result = userInfoOp.map((JSONObject userInfo)->{
             String id = userInfo.getString("loginName");
             String name = userInfo.getString("userName");
             if (id.equals(username) && name != null && id != null) {
@@ -229,9 +234,12 @@ public class ZJUClientService extends HttpClientUtils {
             LogUtils.printMessage("想要登录用户与已经登录用户不一致", Level.ERROR);
             LogUtils.printMessage("想要登录用户："+username, Level.ERROR);
             LogUtils.printMessage("已经登录用户："+id, Level.ERROR);
+            return false;
+        });
+        if( !result.orElse(false)) {
+            LogUtils.printMessage("登录失败：" + username, Level.ERROR);
         }
-        LogUtils.printMessage("登录失败：" + username, Level.ERROR);
-        return false;
+        return result.orElse(false);
     }
     @Override
     public void close() throws IOException {
