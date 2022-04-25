@@ -142,6 +142,5 @@ public class DingTalkHookService implements WebHookService {
     @Override
     public void close() throws IOException {
         client.close();
-        System.out.println("DingTalkHookService stopped");
     }
 }

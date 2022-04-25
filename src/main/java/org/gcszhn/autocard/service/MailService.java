@@ -17,6 +17,7 @@ package org.gcszhn.autocard.service;
 
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -110,7 +111,7 @@ public class MailService implements AppService {
      * @param contentType 内容Mine类型与编码
      */
     public void sendMail(String toAddress, String subject, Object content, String contentType) {
-        if (!isServiceAvailable()) return;
+        if (!isServiceAvailable() || toAddress == null || subject == null || content == null || contentType == null) return;
         MimeMessage msg = new MimeMessage(mailSession);
         Folder sent = null;
         try {
@@ -119,7 +120,6 @@ public class MailService implements AppService {
             msg.setSubject(subject, AppConfig.APP_CHARSET.name());
             msg.setFrom(new InternetAddress(username, nickname, AppConfig.APP_CHARSET.name()));
             msg.setContent(content, contentType);
-
             Transport.send(msg);
             LogUtils.printMessage("发送给" + toAddress +"通知邮件成功!");
         } catch (Exception e) {
@@ -127,14 +127,18 @@ public class MailService implements AppService {
             LogUtils.printMessage(e.getMessage(), Level.ERROR);
             e.printStackTrace();
         } finally {
-            if (sent != null && sent.isOpen())
+            Optional.ofNullable(sent).ifPresent((Folder folder)->{
                 try {
-                    sent.close(true);
+                    if (folder.isOpen()) folder.close(true);
                 } catch (MessagingException e) {
                     LogUtils.printMessage(e.getMessage(), Level.ERROR);
                 }
+            });
         }
     }
     @Override
-    public void close() throws IOException {}
+    public void close() throws IOException {
+        mailSession = null;
+        setServiceAvailable(false);
+    }
 }

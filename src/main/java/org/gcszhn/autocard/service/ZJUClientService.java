@@ -25,6 +25,9 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import lombok.Setter;
+import lombok.Getter;
+
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -66,8 +69,10 @@ public class ZJUClientService extends HttpClientUtils {
         LogUtils.printMessage("Try to get modulus, exponent for public key", Level.DEBUG);
         try {
             String info = doGetText(pubkeyUrl);
-            JSONObject json = JSONObject.parseObject(info);
-            return new String[]{json.getString("modulus"), json.getString("exponent")};
+            return Optional.ofNullable(JSONObject.parseObject(info))
+                                    .map((JSONObject json)->{
+                                        return new String[]{json.getString("modulus"), json.getString("exponent")};
+                                    }).orElse(null);
         } catch (Exception e) {
             LogUtils.printMessage(null, e, Level.ERROR);
         }
@@ -152,9 +157,14 @@ public class ZJUClientService extends HttpClientUtils {
                 default:return null;
             }
             LogUtils.printMessage("正在登录 " + username);
-            if (username==null||password==null||username.isEmpty()||password.isEmpty()) 
-                throw new NullPointerException("User not set");
+            if (username == null || username.isEmpty()) 
+                throw new ZJUClientException(ZJUClientException.USER_MISS_ERROR);
+            if (password == null || password.isEmpty())
+                throw new ZJUClientException(ZJUClientException.PASSWORD_MISS_ERROR);
             String[] publicKey = getPublicKey();
+            if (publicKey == null) {
+                throw new ZJUClientException(ZJUClientException.PUBKEY_MISS_ERROR);
+            }
             String pwdEncrypt=RSAEncryptUtils.encrypt(
                 password.getBytes(AppConfig.APP_CHARSET), publicKey[0], publicKey[1]);
             ArrayList<NameValuePair> parameters = new ArrayList<>(5);
@@ -245,5 +255,27 @@ public class ZJUClientService extends HttpClientUtils {
     public void close() throws IOException {
         setCookieCached(cookieCached);
         super.close();
+    }
+}
+
+class ZJUClientException extends RuntimeException {
+    public static final int PUBKEY_MISS_ERROR = 1;
+    public static final int USER_MISS_ERROR = 2;
+    public static final int PASSWORD_MISS_ERROR = 3;
+    public static final int EXECUTION_MISS_ERROR = 4;
+
+    private @Getter @Setter int errorCode;
+    public ZJUClientException(int errorCode) {
+        super(getMessage(errorCode));
+        setErrorCode(errorCode);
+    }
+    private static String getMessage(int errorCode) {
+        switch(errorCode) {
+            case PUBKEY_MISS_ERROR: return "缺少公钥";
+            case USER_MISS_ERROR: return "确少用户名";
+            case PASSWORD_MISS_ERROR: return "缺少密码";
+            case EXECUTION_MISS_ERROR: return "缺少执行码";
+            default: return "未知错误";
+        }
     }
 }
