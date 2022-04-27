@@ -187,51 +187,70 @@ public class AutoCardService implements AppService {
      */
     public StatusCode submit(String username, String password) {
         StatusCode statusCode = new StatusCode();
-        LogUtils.printMessage("准备提交打卡 " + username);
-        ArrayList<NameValuePair> info = getOldInfo(username, password);
-        if (info==null) {
-            LogUtils.printMessage("打卡信息获取失败", LogUtils.Level.ERROR);
-            statusCode.setMessage(username+"的打卡信息获取失败，可能是打卡更新了或网络不稳定，请查看后台打卡日志输出");
-            statusCode.setStatus(-1);
-            return statusCode;
-        }
-        String area = null;
-        for (NameValuePair pair: info) {
-            if (pair.getName().equals("area")) {
-                area = pair.getValue();
-                break;
+        try {
+            LogUtils.printMessage("准备提交打卡 " + username);
+            ArrayList<NameValuePair> info = getOldInfo(username, password);
+            if (info==null) {
+                LogUtils.printMessage("打卡信息获取失败", LogUtils.Level.ERROR);
+                statusCode.setMessage(username+"的打卡信息获取失败，可能是打卡更新了或网络不稳定，请查看后台打卡日志输出");
+                statusCode.setStatus(-1);
+                return statusCode;
             }
-        }
-        JSONObject resp = JSONObject.parseObject(client.doPostText(submitUrl, info));
-        int status = resp.getIntValue("e");
-        LogUtils.Level level = null;
-        switch(status) {
-            case 0:{level= LogUtils.Level.INFO;break;}
-            case 1:{level= LogUtils.Level.ERROR;break;}
-        }
-        JSONObject userInfo = client.getUserInfo();
-        String message = String.format("%s，你好，今日自动健康打卡状态：%s，打卡地区为：%s（如若区域不符，请次日手动打卡更改地址）",
-            userInfo==null? username: userInfo.getString("userName"), 
-            resp.getString("m"),
-            area);
-        statusCode.setStatus(status);
-        statusCode.setMessage(message);
+            String area = null;
+            for (NameValuePair pair: info) {
+                if (pair.getName().equals("area")) {
+                    area = pair.getValue();
+                    break;
+                }
+            }
+            
+            JSONObject resp;
+            try {
+                resp = JSONObject.parseObject(client.doPostText(submitUrl, info));
+            } catch (Exception e) {
+                resp = new JSONObject();
+                resp.put("e", 3);
+                resp.put("m", "打卡提交失败");
+            }
 
-        if (appConfig.isEnablePreview()) {
-            JSONObject jsonMessage = new JSONObject();
-            jsonMessage.put("id", username);
-            jsonMessage.put("name", userInfo==null? username: userInfo.getString("userName"));
-            jsonMessage.put("message", message);
-            Optional<String> photo = Optional.ofNullable(client.getUserPhoto());
-            photo.ifPresent((String p)->{
-                p = ImageUtils.toBase64(ImageUtils.resize(ImageUtils.toImage(p), 75, 100), "gif");
-                jsonMessage.put("photo", "data:image/gif;base64,"+p);
-            });
-            statusCode.setJsonMessage(jsonMessage);
+            int status = resp.getIntValue("e");
+            LogUtils.Level level = null;
+            switch(status) {
+                case 0:{level= LogUtils.Level.INFO;break;}
+                case 1:{level= LogUtils.Level.ERROR;break;}
+                default: {
+                    level = LogUtils.Level.ERROR;
+                }
+            }
+            JSONObject userInfo = client.getUserInfo();
+            String message = String.format("%s，你好，今日自动健康打卡状态：%s，打卡地区为：%s（如若区域不符，请次日手动打卡更改地址）",
+                userInfo == null || userInfo.getString("userName") == null? username: userInfo.getString("userName"), 
+                resp.getString("m"),
+                area);
+            statusCode.setStatus(status);
+            statusCode.setMessage(message);
+    
+            if (appConfig.isEnablePreview()) {
+                JSONObject jsonMessage = new JSONObject();
+                jsonMessage.put("id", username);
+                jsonMessage.put("name", userInfo==null? username: userInfo.getString("userName"));
+                jsonMessage.put("message", message);
+                Optional<String> photo = Optional.ofNullable(client.getUserPhoto());
+                photo.ifPresent((String p)->{
+                    p = ImageUtils.toBase64(ImageUtils.resize(ImageUtils.toImage(p), 75, 100), "gif");
+                    jsonMessage.put("photo", "data:image/gif;base64,"+p);
+                });
+                statusCode.setJsonMessage(jsonMessage);
+            }
+    
+            LogUtils.printMessage(resp.getString("m"), level);
+            LogUtils.printMessage("地点："+area);
+        } catch (Exception e) {
+            statusCode.setStatus(10);
+            statusCode.setMessage(username + "发生未知打卡异常，请查看打卡日志");
+            LogUtils.printMessage(null , e, LogUtils.Level.ERROR);
         }
 
-        LogUtils.printMessage(resp.getString("m"), level);
-        LogUtils.printMessage("地点："+area);
         return statusCode;
     }
     @Override

@@ -27,8 +27,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public abstract class AppTest {
-    protected static final String trueZjuPassPortUser = "****";
-    protected static final String trueZjuPassPortPass = "****";
-    protected final String PAYLOAD_URL = "https://oapi.dingtalk.com/robot/send?access_token=****";
-    protected final String SECRET = "SEC****";
+    protected static final String USERNAME = "***";
+    protected static final String PASSWORD = "***";
+    protected static final String MAIL = "***";
+    protected static final String PAYLOAD_URL = "https://oapi.dingtalk.com/robot/send?access_token=***";
+    protected static final String SECRET = "SEC***";
 }

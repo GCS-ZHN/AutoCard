@@ -77,7 +77,9 @@
             // 钉钉机器人webhook 签名，如果没有可以不配置
             "dingtalksecret": "SEC****",
             //任务开启随机延时0-1800秒
-            "delay":true
+            "delay":true,
+            //任务最大重试次数，默认为3
+            "maxtrial": 3
         },
         {
             //打卡的通行证账号2
@@ -149,6 +151,7 @@ Fork本项目（右上角，喜欢的小伙伴麻烦顺手点star支持一下）
 - **AUTOCARD_DINGTALK_SECRET** 打卡的钉钉推送密钥
 - **AUTOCARD_DELAY** 是否随机延迟打卡
 - **AUTOCARD_CACHE_FLAG** 用于程序缓存输出提供一个索引，任意值即可，例如设为1
+- **AUTOCARD_MAX_TRIAL** 打卡失败最大重试次数，默认是3次
 
 上述环境变量与前述配置文件的参数对应。AutoCard会读取这些环境变量，配置打卡用户。其相较于配置文件的优点在于，配置文件是在github开源显示的，二上述环境变量是加密的。但不支持多个账号配置。
 ![github环境变量](templete/env.png)
@@ -237,6 +240,8 @@ powershell build.ps1  ## windows
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
 ## 八、更新记录
+### v1.4.6
+修复了相关[issue](https://github.com/GCS-ZHN/AutoCard/issues/11)，支持了设置最大重试次数。
 ### v1.4.5
 修复了在获取照片异常时引起的空指针异常。
 

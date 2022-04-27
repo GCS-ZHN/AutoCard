@@ -41,7 +41,7 @@ public class AutoCardServiceTest extends AppTest {
     public void getPageTest() {
         try {
             for (int i = 0; i < 2; i++) {
-                String page = autoCardService.getPage(trueZjuPassPortUser, trueZjuPassPortPass);
+                String page = autoCardService.getPage(USERNAME, PASSWORD);
                 Assert.assertNotNull(page);
                 Assert.assertTrue(autoCardService.formValidation(page));
             }
@@ -51,11 +51,11 @@ public class AutoCardServiceTest extends AppTest {
     }
     @Test
     public void getOldInfoTest() {
-        System.out.println(autoCardService.getOldInfo(trueZjuPassPortUser, trueZjuPassPortPass));
+        System.out.println(autoCardService.getOldInfo(USERNAME, PASSWORD));
     }
     @Test
     public void submitReportTest() {
-        StatusCode statusCode = autoCardService.submit(trueZjuPassPortUser, trueZjuPassPortPass);
+        StatusCode statusCode = autoCardService.submit(USERNAME, PASSWORD);
         Assert.assertNotEquals(statusCode.getStatus(), -1);
     }
 }

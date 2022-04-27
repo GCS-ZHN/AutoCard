@@ -15,6 +15,8 @@
  */
 package org.gcszhn.autocard.service;
 
+import java.util.Optional;
+
 import org.gcszhn.autocard.utils.LogUtils;
 import org.gcszhn.autocard.utils.SpringUtils;
 import org.gcszhn.autocard.utils.StatusCode;
@@ -26,9 +28,10 @@ import org.quartz.JobExecutionException;
 /**
  * 自动打卡的定时任务
  * @author Zhang.H.N
- * @version 1.1
+ * @version 1.2
  */
 public class AutoCardJob implements Job {
+    private static final int DEFAULT_MAX_TRIAL = 3;
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         try (AutoCardService cardService = SpringUtils.getBean(AutoCardService.class)) {
@@ -42,12 +45,16 @@ public class AutoCardJob implements Job {
         MailService mailService, 
         AutoCardService cardService,
         DingTalkHookService dingTalkHookService) throws JobExecutionException {
+        // 参数初始化
         boolean isDelay = dataMap.getBooleanValue("delay");
         String username = dataMap.getString("username");
         String password = dataMap.getString("password");
         String mail = dataMap.getString("mail");
         String dingtalkURL = dataMap.getString("dingtalkurl");
         String dingtalkSecret = dataMap.getString("dingtalksecret");
+        int maxTrial = Optional.ofNullable(dataMap.getString("maxtrial"))
+            .map((String value)->Integer.parseInt(value))
+            .orElse(DEFAULT_MAX_TRIAL);
         //开启随机延迟，这样可以避免每次打卡时间过于固定
         try {
             if (isDelay) {
@@ -58,23 +65,31 @@ public class AutoCardJob implements Job {
         } catch (Exception e) {
             throw new JobExecutionException(e);
         }
-        LogUtils.printMessage("自动打卡开始");
-        // 三次打卡尝试，失败后发送邮件提示。
-        int change = 3;
+        
         try {
+            LogUtils.printMessage("自动打卡开始");
             if (username==null||password==null||username.isEmpty()||password.isEmpty()) 
                 throw new NullPointerException("Empty username or password of zjupassport");
-            //打卡
+        
             StatusCode statusCode = new StatusCode();
-            while (change>0 && (statusCode = cardService.submit(username, password)).getStatus()==-1) {
-                int delay = (4-change) * 10;
-                LogUtils.printMessage(delay+"秒后再次尝试", 
-                    LogUtils.Level.ERROR);
-                Thread.sleep(delay * 1000);
-                change--;
+            int trial = maxTrial;
+            LOOP: while (trial > 0) {
+                statusCode = cardService.submit(username, password);
+                switch(statusCode.getStatus()) {
+                    case 0:
+                    case 1: {break LOOP;}
+                    default: {
+                        int delay = (maxTrial - trial + 1)  * 10;
+                        LogUtils.printMessage(delay+"秒后再次尝试", 
+                            LogUtils.Level.ERROR);
+                        Thread.sleep(delay * 1000);
+                        trial--;
+                    }
+                }
+
             }
-            if (change==0) {
-                LogUtils.printMessage("打卡尝试失败3次 " + username, 
+            if (trial == 0) {
+                LogUtils.printMessage(String.format("%s打卡尝试失败%d次", username, maxTrial), 
                     LogUtils.Level.ERROR);
             }
 

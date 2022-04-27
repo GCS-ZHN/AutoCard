@@ -16,7 +16,10 @@
 package org.gcszhn.autocard.service;
 
 import org.gcszhn.autocard.AppTest;
+import org.junit.Before;
 import org.junit.Test;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -27,12 +30,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class JobServiceTest extends AppTest {
     @Autowired
     JobService jobService;
+    private JobDataMap dataMap;
+    @Autowired
+    private MailService mailService;
+    @Autowired
+    private AutoCardService cardService;
+    @Autowired
+    private DingTalkHookService dingTalkHookService;
+
+    @Before
+    public void initDataMap() {
+        dataMap = new JobDataMap();
+        dataMap.put("username", USERNAME);
+        dataMap.put("password", PASSWORD);
+        dataMap.put("mail", MAIL);
+        dataMap.put("dingtalkurl", PAYLOAD_URL);
+        dataMap.put("dingtalksecret", SECRET);
+    }
+
     @Test
-    public void test() throws InterruptedException {
+    public void cronTest() throws InterruptedException {
        synchronized(jobService) {
-        jobService.addJob(AutoCardJob.class, null, null);
+        jobService.addJob(AutoCardJob.class, null, dataMap);
         jobService.start();
         jobService.wait(50000); 
        }
+    }
+    @Test
+    public void executeTest() {
+        try {
+            AutoCardJob.execute(dataMap, mailService, cardService, dingTalkHookService);
+        } catch (JobExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }
