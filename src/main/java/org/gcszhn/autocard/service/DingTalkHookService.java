@@ -22,6 +22,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import org.apache.commons.codec.binary.Base64;
@@ -49,7 +50,7 @@ public class DingTalkHookService implements WebHookService {
      * @param isAtAll 是否at全体
      * @return 发送状态对象
      */
-    public StatusCode send(String payLoadURL, JSONObject message, String type, boolean isAtAll) {
+    public StatusCode send(String payLoadURL, JSONObject message, String type, boolean isAtAll, String... atMobiles) {
         StatusCode statusCode = checkURL(payLoadURL);
         if (statusCode.getStatus() == 0)  {
             JSONObject jsonObject = new JSONObject();
@@ -57,7 +58,13 @@ public class DingTalkHookService implements WebHookService {
             jsonObject.put(type, message);
             jsonObject.put("at", new JSONObject());
             jsonObject.getJSONObject("at").put("isAtAll", isAtAll);
-            JSONObject res = JSON.parseObject(client.entityToString(client.getResponseContent(client.doPost(payLoadURL, jsonObject.toJSONString(), "application/json"))));
+            JSONArray mobileArray = new JSONArray();
+            jsonObject.getJSONObject("at").put("atMobiles", mobileArray);
+            for (String mobile: atMobiles) {
+                mobileArray.add(mobile);
+            }
+
+            JSONObject res = JSON.parseObject(client.getTextContent(client.doPost(payLoadURL, jsonObject.toJSONString(), "application/json")));
             statusCode.setStatus(res.getIntValue("errcode"));
             statusCode.setMessage(res.getString("errmsg"));
         }
@@ -76,10 +83,10 @@ public class DingTalkHookService implements WebHookService {
      * @param isAtAll 是否at全体
      * @return 发送状态对象
      */
-    public StatusCode sendText(String payLoadURL, String info, boolean isAtAll) {
+    public StatusCode sendText(String payLoadURL, String info, boolean isAtAll, String... atMobiles) {
         JSONObject message = new JSONObject();
         message.put("content", info);
-        return send(payLoadURL, message, "text", isAtAll);
+        return send(payLoadURL, message, "text", isAtAll, atMobiles);
     }
 
     @Override
@@ -95,11 +102,11 @@ public class DingTalkHookService implements WebHookService {
      * @param isAtAll 是否at全体
      * @return 发送状态对象
      */
-    public StatusCode sendMarkdown(String payLoadURL, String title, String content, boolean isAtAll) {
+    public StatusCode sendMarkdown(String payLoadURL, String title, String content, boolean isAtAll, String... atMobiles) {
         JSONObject message = new JSONObject();
         message.put("title", title);
         message.put("text", content);
-        return send(payLoadURL, message, "markdown", isAtAll);
+        return send(payLoadURL, message, "markdown", isAtAll, atMobiles);
     }
 
     /**

@@ -53,7 +53,15 @@ public class AutoCardJob implements Job {
         String dingtalkURL = dataMap.getString("dingtalkurl");
         String dingtalkSecret = dataMap.getString("dingtalksecret");
         int maxTrial = Optional.ofNullable(dataMap.getString("maxtrial"))
-            .map((String value)->Integer.parseInt(value))
+            .map((String value)-> {
+                try{
+                    if (value.equals("")) return DEFAULT_MAX_TRIAL;
+                    return Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    LogUtils.printMessage("无效的整数格式", LogUtils.Level.ERROR);
+                    return DEFAULT_MAX_TRIAL;
+                }
+            })
             .orElse(DEFAULT_MAX_TRIAL);
         //开启随机延迟，这样可以避免每次打卡时间过于固定
         try {

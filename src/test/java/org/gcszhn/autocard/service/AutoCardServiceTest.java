@@ -15,12 +15,18 @@
  */
 package org.gcszhn.autocard.service;
 
+import net.sourceforge.tess4j.TesseractException;
 import org.gcszhn.autocard.AppTest;
+import org.gcszhn.autocard.utils.ImageUtils;
+import org.gcszhn.autocard.utils.OCRUtils;
 import org.gcszhn.autocard.utils.StatusCode;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  * 打卡服务测试
@@ -41,7 +47,8 @@ public class AutoCardServiceTest extends AppTest {
     public void getPageTest() {
         try {
             for (int i = 0; i < 2; i++) {
-                String page = autoCardService.getPage(USERNAME, PASSWORD);
+                autoCardService.login(USERNAME, PASSWORD);
+                String page = autoCardService.getPage();
                 Assert.assertNotNull(page);
                 Assert.assertTrue(autoCardService.formValidation(page));
             }
@@ -51,11 +58,22 @@ public class AutoCardServiceTest extends AppTest {
     }
     @Test
     public void getOldInfoTest() {
-        System.out.println(autoCardService.getOldInfo(USERNAME, PASSWORD));
+        autoCardService.login(USERNAME, PASSWORD);
+        System.out.println(autoCardService.getOldInfo());
     }
     @Test
     public void submitReportTest() {
         StatusCode statusCode = autoCardService.submit(USERNAME, PASSWORD);
         Assert.assertNotEquals(statusCode.getStatus(), -1);
+    }
+    @Test
+    public void validCodeTest() throws TesseractException, InterruptedException {
+        autoCardService.login(USERNAME, PASSWORD);
+        BufferedImage image = autoCardService.getCodeImage();
+        Assert.assertNotNull(image);
+        String validCode = autoCardService.getCode(image);
+        if (validCode != null) {
+            ImageUtils.write(image, "png", new File("code/" + validCode + ".png"));
+        }
     }
 }

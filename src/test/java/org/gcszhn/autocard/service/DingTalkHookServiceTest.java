@@ -36,7 +36,7 @@ public class DingTalkHookServiceTest extends AppTest {
 
     @Test
     public void sendTextTest() {
-        Assert.assertEquals(service.sendText(encrypt_url, "打卡信息获取失败", true).getStatus(), 0);
+        Assert.assertEquals(service.sendText(encrypt_url, "打卡信息获取失败, @"+ PHONE, false, PHONE).getStatus(), 0);
     }
 
     @Test

@@ -40,6 +40,9 @@ jobs:
         with:
            distribution: 'temurin'
            java-version: '17'
+
+      - name: "Setup tesseract-ocr"
+        run: "sudo apt install tesseract-ocr -y && mv config/tessdata action/config/tessdata"
       
       # 缓存信息，当缓存发生变化时，请修改key值
       - name: "Cache autocard cache file"
