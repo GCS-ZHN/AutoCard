@@ -7,7 +7,7 @@ on:
     branches: [ main ]
   schedule:
     # 东八区09:00，约莫有延时10~20，看github服务器情况
-    - cron: ' 0 1 * * *'
+    - cron: '0 1 * * *'
   
   # 当star当前仓库时立即执行
   watch:
@@ -40,6 +40,9 @@ jobs:
         with:
            distribution: 'temurin'
            java-version: '17'
+
+      - name: "Setup tesseract-ocr"
+        run: "sudo apt install tesseract-ocr -y && mv config/tessdata action/config/tessdata"
       
       # 缓存信息，当缓存发生变化时，请修改key值
       - name: "Cache autocard cache file"
@@ -59,4 +62,5 @@ jobs:
           AUTOCARD_PWD: ${{ secrets.AUTOCARD_PWD }}
           AUTOCARD_DINGTALK_URL: ${{ secrets.AUTOCARD_DINGTALK_URL }}
           AUTOCARD_DINGTALK_SECRET: ${{ secrets.AUTOCARD_DINGTALK_SECRET }}
+          AUTOCARD_MAX_TRIAL: ${{ secrets.AUTOCARD_MAX_TRIAL }}
         run: cd action && java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard.jar --app.autoCard.immediate=true

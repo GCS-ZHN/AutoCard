@@ -4,7 +4,7 @@
 
     <groupId>org.gcszhn</groupId>
     <artifactId>autocard</artifactId>
-    <version>1.4.5</version>
+    <version>1.4.7</version>
     <packaging>jar</packaging>
 
     <name>Auto Heathy Report for Zhejiang University</name>
@@ -111,6 +111,21 @@
             <artifactId>mail</artifactId>
             <version>1.4.7</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.10.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+        
         <!--lombok插件-->
         <dependency>
             <groupId>org.projectlombok</groupId>

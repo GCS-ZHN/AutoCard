@@ -33,11 +33,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.message.BasicNameValuePair;
 import org.gcszhn.autocard.AppConfig;
-import org.gcszhn.autocard.utils.HttpClientUtils;
-import org.gcszhn.autocard.utils.LogUtils;
+import org.gcszhn.autocard.utils.*;
 import org.gcszhn.autocard.utils.LogUtils.Level;
-import org.gcszhn.autocard.utils.RSAEncryptUtils;
-import org.gcszhn.autocard.utils.StatusCode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,12 +88,12 @@ public class ZJUClientService extends HttpClientUtils {
         try {
             /**暂时创建一个禁止自动重定向的客户端 */
             setHttpClient(false, 0);
-            CloseableHttpResponse response = doGet(loginUrl);
-            int httpStatus = response.getStatusLine().getStatusCode();
+            HttpDataPair dataPair = doGet(loginUrl);
+            int httpStatus = dataPair.getResponse().getStatusLine().getStatusCode();
             if (httpStatus==302) {
                 statusCode.setStatus(1);
             } else {
-                String textContent = entityToString(getResponseContent(response));
+                String textContent = getTextContent(dataPair);
                 Document document = Jsoup.parse(textContent);
                 statusCode.setStatus(0);
                 statusCode.setMessage(document.getElementsByAttributeValue("name", "execution").val());
@@ -173,13 +170,13 @@ public class ZJUClientService extends HttpClientUtils {
             parameters.add(new BasicNameValuePair("_eventId", "submit"));
             parameters.add(new BasicNameValuePair("authcode", ""));
             parameters.add(new BasicNameValuePair("execution", execution.getMessage()));
-    
-            //登录正常时，返回为302重定向
-            CloseableHttpResponse response = doPost(loginUrl, parameters);
-            String textContent = targetService!=null?entityToString(getResponseContent(response)):"";
+
+            HttpDataPair dataPair = doPost(loginUrl, parameters);
+            String textContent = targetService!=null? getTextContent(dataPair):"";
             if (checkUserInfo(username)) {
                 return textContent;
             }
+            if (dataPair != null) dataPair.close();
         } catch (Exception e) {
             LogUtils.printMessage(null, e, Level.ERROR);
         }

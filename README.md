@@ -31,7 +31,27 @@
 |dmg              |MacOS                                   |
 |exe                |Win                                        |
 
-**STEP 3 下载作者提供的发行版**
+**STEP 3 安装tesseract-ocr**
+该项目基于tesseract-ocr做验证码识别，需要在系统环境中安装tesseract-ocr引擎，可以参考[tesseract-ocr主页](https://tesseract-ocr.github.io/tessdoc/Home.html)。安装配置完成可以正常使用`tesseract`命令。
+```
+(base) [admin@Sat May 07-22:06:17 autocard]$ tesseract
+Usage:
+  tesseract --help | --help-extra | --version
+  tesseract --list-langs
+  tesseract imagename outputbase [options...] [configfile...]
+
+OCR options:
+  -l LANG[+LANG]        Specify language(s) used for OCR.
+NOTE: These options must occur before any configfile.
+
+Single options:
+  --help                Show this help message.
+  --help-extra          Show extra help for advanced users.
+  --version             Show version information.
+  --list-langs          List available languages for tesseract engine.
+```
+
+**STEP 4 下载作者提供的发行版**
 
 在[gitee](https://gitee.com/GCSZHN/AutoCard/releases/)或[github](https://github.com/GCS-ZHN/AutoCard/releases)的项目发行版页面，下载最新的发行版（autocard-XXX.zip，XXX为版本号）。并解压。可以看到解压后目录结构如下
 ```txt
@@ -42,8 +62,9 @@
 ----config/
 ------application.json                  ## 用户配置，如账号密码等
 ------log4j2.xml                        ## 日志配置，不用修改
+------tessdata/                         ## 放置OCR模型数据
 ```
-**STEP 4 修改application.json**
+**STEP 5 修改application.json**
 
 用任意文本编辑器打开config目录下的application.json，配置下列信息。
 ```json
@@ -77,7 +98,9 @@
             // 钉钉机器人webhook 签名，如果没有可以不配置
             "dingtalksecret": "SEC****",
             //任务开启随机延时0-1800秒
-            "delay":true
+            "delay":true,
+            //任务最大重试次数，默认为3
+            "maxtrial": 3
         },
         {
             //打卡的通行证账号2
@@ -119,7 +142,7 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 ```
 delay参数为true时，每次执行任务会随机延时0~1800秒，这样的好处在于每天打卡时间不固定。
 
-**STEP 5 运行程序**
+**STEP 6 运行程序**
 
 需要通过命令行来运行程序，在Windows下，常见的命令行是cmd和powershell，打开方式“WIN + R”，输入"cmd"或"powershell"，确定即可。linux服务器打开即是shell命令行页面（To小白：如何连接Linux服务器请自行百度一下，拥有服务器用户名、密码、IP、端口，通过ssh客户端访问）。
 
@@ -149,6 +172,7 @@ Fork本项目（右上角，喜欢的小伙伴麻烦顺手点star支持一下）
 - **AUTOCARD_DINGTALK_SECRET** 打卡的钉钉推送密钥
 - **AUTOCARD_DELAY** 是否随机延迟打卡
 - **AUTOCARD_CACHE_FLAG** 用于程序缓存输出提供一个索引，任意值即可，例如设为1
+- **AUTOCARD_MAX_TRIAL** 打卡失败最大重试次数，默认是3次
 
 上述环境变量与前述配置文件的参数对应。AutoCard会读取这些环境变量，配置打卡用户。其相较于配置文件的优点在于，配置文件是在github开源显示的，二上述环境变量是加密的。但不支持多个账号配置。
 ![github环境变量](templete/env.png)
@@ -237,6 +261,10 @@ powershell build.ps1  ## windows
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
 ## 八、更新记录
+### v1.4.7
+2022年5月7日，学校引入图片验证码，特发布此次更新支持验证码识别。同时修复了相关issue的BUG。
+### v1.4.6
+修复了相关[issue](https://github.com/GCS-ZHN/AutoCard/issues/11)，支持了设置最大重试次数。
 ### v1.4.5
 修复了在获取照片异常时引起的空指针异常。
 

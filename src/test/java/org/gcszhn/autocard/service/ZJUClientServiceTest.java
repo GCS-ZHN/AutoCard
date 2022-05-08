@@ -52,25 +52,25 @@ public class ZJUClientServiceTest extends AppTest {
      */
     @Test
     public void loginTest() {
-        Assert.assertEquals(true, client.login(trueZjuPassPortUser, trueZjuPassPortPass));
+        Assert.assertEquals(true, client.login(USERNAME, PASSWORD));
         Assert.assertEquals(false, client.login("dadadada", "dadad"));
     }
     @Test
     public void getUserInfoTest() {
-        if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
+        if (client.login(USERNAME, PASSWORD)) {
             System.out.println(client.getUserInfo());
         }
     }
     @Test
     public void getUserPhotoTest() {
-        if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
+        if (client.login(USERNAME, PASSWORD)) {
             String photo = client.getUserPhoto();
             if (photo != null) {
-                ImageUtils.write(photo, new File(trueZjuPassPortUser+ "-raw.gif"));
+                ImageUtils.write(photo, new File(USERNAME+ "-raw.gif"));
                 BufferedImage image = ImageUtils.toImage(photo);
-                ImageUtils.write(image, "gif", new File(trueZjuPassPortUser+ "-t.gif"));
+                ImageUtils.write(image, "gif", new File(USERNAME+ "-t.gif"));
                 image = ImageUtils.resize(image, 75, 100);
-                ImageUtils.write(image, "gif", new File(trueZjuPassPortUser+ "-resize.gif"));
+                ImageUtils.write(image, "gif", new File(USERNAME+ "-resize.gif"));
             }
         }
     }
@@ -83,7 +83,7 @@ public class ZJUClientServiceTest extends AppTest {
         ArrayList<String> peoples = new ArrayList<>();
         PrintWriter pw = new PrintWriter("studentInfo.csv");
         pw.println("\"id\",\"name\",\"department\",\"email\"");
-        if (client.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
+        if (client.login(USERNAME, PASSWORD)) {
             String userIndexPage=client.doGetText(userUrl);
             Document document = Jsoup.parse(userIndexPage);
             String userId = document.getElementById("userId").attr("value");

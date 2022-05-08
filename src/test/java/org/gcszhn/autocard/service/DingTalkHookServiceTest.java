@@ -36,7 +36,7 @@ public class DingTalkHookServiceTest extends AppTest {
 
     @Test
     public void sendTextTest() {
-        Assert.assertEquals(service.sendText(encrypt_url, "打卡信息获取失败", true).getStatus(), 0);
+        Assert.assertEquals(service.sendText(encrypt_url, "打卡信息获取失败, @"+ PHONE, false, PHONE).getStatus(), 0);
     }
 
     @Test
@@ -47,9 +47,9 @@ public class DingTalkHookServiceTest extends AppTest {
     @Test
     public void sendPhotoTest() {
         ZJUClientService clientService = SpringUtils.getBean(ZJUClientService.class);
-        if (clientService.login(trueZjuPassPortUser, trueZjuPassPortPass)) {
+        if (clientService.login(USERNAME, PASSWORD)) {
             String photo = clientService.getUserPhoto();
-            StatusCode statusCode = service.sendMarkdown(encrypt_url, trueZjuPassPortUser, "### "+trueZjuPassPortUser+"\n你好\n![img](data:image/gif;base64,"+photo+")");
+            StatusCode statusCode = service.sendMarkdown(encrypt_url, USERNAME, "### "+USERNAME+"\n你好\n![img](data:image/gif;base64,"+photo+")");
             System.out.println(statusCode.getMessage());
             Assert.assertEquals(statusCode.getStatus(), 0);
         }

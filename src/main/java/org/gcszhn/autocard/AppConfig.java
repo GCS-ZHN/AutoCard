@@ -87,6 +87,7 @@ public class AppConfig implements EnvironmentAware {
             global_user.put("dingtalkurl", System.getenv("AUTOCARD_DINGTALK_URL"));
             global_user.put("dingtalksecret",  System.getenv("AUTOCARD_DINGTALK_SECRET"));
             global_user.put("delay", System.getenv("AUTOCARD_DELAY") != null);
+            global_user.put("maxtrial", System.getenv("AUTOCARD_MAX_TRIAL"));
             appConfig.getJSONArray("jobs").add(global_user);
         }
 

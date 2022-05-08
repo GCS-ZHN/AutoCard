@@ -15,6 +15,8 @@
  */
 package org.gcszhn.autocard;
 
+import java.util.ResourceBundle;
+
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,8 +29,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public abstract class AppTest {
-    protected static final String trueZjuPassPortUser = "****";
-    protected static final String trueZjuPassPortPass = "****";
-    protected final String PAYLOAD_URL = "https://oapi.dingtalk.com/robot/send?access_token=****";
-    protected final String SECRET = "SEC****";
+    protected static final String USERNAME ;
+    protected static final String PASSWORD;
+    protected static final String MAIL;
+    protected static final String PAYLOAD_URL;
+    protected static final String SECRET;
+    protected static final String PHONE;
+    static {
+        ResourceBundle bundle = ResourceBundle.getBundle("test_config");
+        USERNAME = bundle.getString("username");
+        PASSWORD = bundle.getString("password");
+        MAIL = bundle.getString("mail");
+        PAYLOAD_URL = bundle.getString("dingtalkurl");
+        SECRET = bundle.getString("dingtalksecret");
+        PHONE = bundle.getString("telephone");
+    }
 }
