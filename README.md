@@ -31,25 +31,10 @@
 |dmg              |MacOS                                   |
 |exe                |Win                                        |
 
-**STEP 3 安装tesseract-ocr**
-该项目基于tesseract-ocr做验证码识别，需要在系统环境中安装tesseract-ocr引擎，可以参考[tesseract-ocr主页](https://tesseract-ocr.github.io/tessdoc/Home.html)。安装配置完成可以正常使用`tesseract`命令。
-```
-(base) [admin@Sat May 07-22:06:17 autocard]$ tesseract
-Usage:
-  tesseract --help | --help-extra | --version
-  tesseract --list-langs
-  tesseract imagename outputbase [options...] [configfile...]
+**STEP 3 检查tesseract-ocr**
 
-OCR options:
-  -l LANG[+LANG]        Specify language(s) used for OCR.
-NOTE: These options must occur before any configfile.
-
-Single options:
-  --help                Show this help message.
-  --help-extra          Show extra help for advanced users.
-  --version             Show version information.
-  --list-langs          List available languages for tesseract engine.
-```
+该项目基于tesseract-ocr做验证码识别，项目jar包集成了linux-x86-64、win-x86、win-x86-64三种系统架构的tesseract动态库，可以满足多数linux/windows环境需求，
+非上述环境下，需要在系统环境中安装tesseract开发库（libtesseract的so或dll文件），可以参考[tesseract-ocr主页](https://tesseract-ocr.github.io/tessdoc/Home.html)。
 
 **STEP 4 下载作者提供的发行版**
 
@@ -261,6 +246,9 @@ powershell build.ps1  ## windows
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
 ## 八、更新记录
+### v1.4.7.update
+集成linux-x86-64的tesseract-OCR环境，无需自主安装tesseract开发库。
+
 ### v1.4.7
 2022年5月7日，学校引入图片验证码，特发布此次更新支持验证码识别。同时修复了相关issue的BUG。
 ### v1.4.6

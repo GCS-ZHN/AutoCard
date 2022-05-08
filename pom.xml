@@ -4,7 +4,7 @@
 
     <groupId>org.gcszhn</groupId>
     <artifactId>autocard</artifactId>
-    <version>1.4.7</version>
+    <version>1.4.7.update</version>
     <packaging>jar</packaging>
 
     <name>Auto Heathy Report for Zhejiang University</name>
@@ -214,5 +214,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

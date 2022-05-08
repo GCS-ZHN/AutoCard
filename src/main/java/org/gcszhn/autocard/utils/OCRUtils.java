@@ -26,24 +26,43 @@ import net.sourceforge.tess4j.util.ImageHelper;
 
 import javax.imageio.ImageIO;
 
+/**
+ * OCR utils
+ * @author GCS-ZHN
+ */
 public class OCRUtils {
+    /**
+     * @param filename 图片名称
+     * @return 识别的字符信息
+     * @throws TesseractException tesseract-ocr识别异常
+     * @throws IOException 图片读写等异常
+     */
     public static String recognize(String filename) throws TesseractException, IOException {
         return recognize(new File(filename));
     }
-    
+
+    /**
+     * @param file 图片文件对象
+     * @return 识别的字符信息
+     * @throws TesseractException tesseract-ocr识别异常
+     * @throws IOException 图片读写等异常
+     */
     public static String recognize(File file) throws TesseractException, IOException {
         return  recognize(ImageIO.read(file));
     }
 
+    /**
+     * @param image 图片对象
+     * @return 识别的字符信息
+     * @throws TesseractException tesseract-ocr识别异常
+     */
     public static  String recognize(BufferedImage image) throws TesseractException {
         if (image == null) return null;
         ITesseract instance = new Tesseract();
-        instance.setDatapath("config/tessdata");
+        instance.setDatapath("./config/tessdata");
         instance.setLanguage("eng");
         image = ImageHelper.convertImageToGrayscale(image);
         image = ImageHelper.convertImageToBinary(image);
-        // System.out.println("Resizing");
-        //image = ImageHelper.getScaledInstance(image, image.getWidth() * 5, image.getWidth() * 5);
         return instance.doOCR(image);
     }
 }
