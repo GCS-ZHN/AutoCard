@@ -7,7 +7,7 @@ on:
     branches: [ main ]
   schedule:
     # 东八区09:00，约莫有延时10~20，看github服务器情况
-    - cron: '0 30 6 * * ? * '
+    - cron:  '0 1 * * *'
   
   # 当star当前仓库时立即执行
   watch:
