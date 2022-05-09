@@ -15,15 +15,20 @@
  */
 package top.gcszhn.autocard.utils;
 
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
 import org.junit.Test;
 
 import top.gcszhn.autocard.AppTest;
-
+import top.gcszhn.autocard.utils.ocr.EngineType;
+import top.gcszhn.autocard.utils.ocr.OCRUtils;
 public class OCRUtilsTest extends AppTest {
     @Test
     public void recongnizeTest() {
         try {
-            System.out.println(OCRUtils.recognize("code/AENZ.png"));
+            System.out.println(OCRUtils.instance(EngineType.D4_OCR).recognize(ImageIO.read(new File("code/AENZ.png"))));
         } catch (Exception e) {
             e.printStackTrace();
         }

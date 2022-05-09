@@ -15,6 +15,7 @@
  */
 package top.gcszhn.autocard;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import top.gcszhn.autocard.service.MailService;
 import top.gcszhn.autocard.utils.LogUtils;
+import top.gcszhn.autocard.utils.ocr.EngineType;
 
 
 /**
@@ -45,6 +47,15 @@ import top.gcszhn.autocard.utils.LogUtils;
 public class AppConfig implements EnvironmentAware {
     /**默认字符集 */
     public static final Charset APP_CHARSET = StandardCharsets.UTF_8;
+    public static final File TMP_DIR = new File(System.getProperty("java.io.tmpdir") , "autocard");
+    static {
+        try {
+            TMP_DIR.mkdirs();
+        } catch (Exception e) {
+            LogUtils.printMessage("APP创建临时目录失败", e, LogUtils.Level.ERROR);
+            App.exit(-1);
+        }
+    }
     /**APP缓存文件 */
     private static final String APP_CACHE = "autocard_cache.json";
     /**应用缓存 */
@@ -55,6 +66,8 @@ public class AppConfig implements EnvironmentAware {
     private @Getter boolean testMode = false;
     /**是否启用预览特性 */
     private @Getter boolean enablePreview = false;
+    /**默认OCR引擎 */
+    private @Getter EngineType ocrEngine = EngineType.D4_OCR;
     public AppConfig() {
         LogUtils.printMessage("Test mode is " + testMode, LogUtils.Level.DEBUG);
         try (FileInputStream fis = new FileInputStream(APP_CACHE)) {
@@ -70,27 +83,41 @@ public class AppConfig implements EnvironmentAware {
      */
     @Override
     public void setEnvironment(Environment env) {
-        loadJSONConfig(env.getProperty("app.autoCard.config"));
-        testMode = appConfig.getBooleanValue("testmode");
-        enablePreview = appConfig.getBooleanValue("enablepreview");
-
-        // 通过系统环境变量添加单个打卡用户
-        
-        String username = System.getenv("AUTOCARD_USER");
-        String password = System.getenv("AUTOCARD_PWD");
-        if (username != null && password != null && !username.isEmpty() && !password.isEmpty()) {
-            JSONObject global_user = new JSONObject();
-            global_user.put("username", username);
-            global_user.put("password", password);
-            global_user.put("mail", System.getenv("AUTOCARD_MAIL"));
-            global_user.put("cron", System.getenv("AUTOCARD_CRON"));
-            global_user.put("dingtalkurl", System.getenv("AUTOCARD_DINGTALK_URL"));
-            global_user.put("dingtalksecret",  System.getenv("AUTOCARD_DINGTALK_SECRET"));
-            global_user.put("delay", System.getenv("AUTOCARD_DELAY") != null);
-            global_user.put("maxtrial", System.getenv("AUTOCARD_MAX_TRIAL"));
-            appConfig.getJSONArray("jobs").add(global_user);
+        try {
+            loadJSONConfig(env.getProperty("app.autoCard.config"));
+            testMode = appConfig.getBooleanValue("testmode");
+            enablePreview = appConfig.getBooleanValue("enablepreview");
+            try {
+                ocrEngine = EngineType.valueOf(appConfig.getString("ocr").toUpperCase());
+                LogUtils.printMessage("OCR引擎为" + ocrEngine);
+            } catch (Exception e) {
+                LogUtils.printMessage("未配置有效的OCR引擎，使用默认OCR引擎" + ocrEngine);
+            }
+            
+            // 通过系统环境变量添加单个打卡用户
+            
+            String username = System.getenv("AUTOCARD_USER");
+            String password = System.getenv("AUTOCARD_PWD");
+            if (username != null && password != null && !username.isEmpty() && !password.isEmpty()) {
+                JSONObject global_user = new JSONObject();
+                global_user.put("username", username);
+                global_user.put("password", password);
+                global_user.put("mail", System.getenv("AUTOCARD_MAIL"));
+                global_user.put("cron", System.getenv("AUTOCARD_CRON"));
+                global_user.put("dingtalkurl", System.getenv("AUTOCARD_DINGTALK_URL"));
+                global_user.put("dingtalksecret",  System.getenv("AUTOCARD_DINGTALK_SECRET"));
+                global_user.put("delay", System.getenv("AUTOCARD_DELAY") != null);
+                global_user.put("maxtrial", System.getenv("AUTOCARD_MAX_TRIAL"));
+                appConfig.getJSONArray("jobs").add(global_user);
+            }
+            String javaTmpDir = System.getProperty("java.io.tmpdir");
+            if (javaTmpDir == null) {
+                javaTmpDir = ".";
+            }
+        } catch (Exception e) {
+            LogUtils.printMessage("APP环境初始化失败", e, LogUtils.Level.ERROR);
+            App.exit(-1);
         }
-
     }
     /**
      * 初始化json配置

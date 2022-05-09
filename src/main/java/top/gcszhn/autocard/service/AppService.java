@@ -15,9 +15,7 @@
  */
 package top.gcszhn.autocard.service;
 
-import java.io.Closeable;
-
 /**
  * AutoCard应用统一服务接口
  */
-public interface AppService extends Closeable {}
+public interface AppService extends AutoCloseable {}

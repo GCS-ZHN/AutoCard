@@ -27,13 +27,12 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONObject;
 
 import lombok.Getter;
-import net.sourceforge.tess4j.TesseractException;
 import top.gcszhn.autocard.AppConfig;
 import top.gcszhn.autocard.utils.DigestUtils;
 import top.gcszhn.autocard.utils.HttpDataPair;
 import top.gcszhn.autocard.utils.ImageUtils;
 import top.gcszhn.autocard.utils.LogUtils;
-import top.gcszhn.autocard.utils.OCRUtils;
+import top.gcszhn.autocard.utils.ocr.OCRUtils;
 import top.gcszhn.autocard.utils.StatusCode;
 
 import org.apache.http.NameValuePair;
@@ -230,7 +229,7 @@ public class AutoCardService implements AppService {
         Optional<String> code = Optional.ofNullable(codeImage).map((BufferedImage image)->{
             try {
                 LogUtils.printMessage("识别验证码", LogUtils.Level.INFO);
-                String value = OCRUtils.recognize(image);
+                String value = OCRUtils.instance(appConfig.getOcrEngine()).recognize(image);
                 if (value != null) {
                     value = value.strip().toUpperCase();
                     value.replaceAll("1", "I");
@@ -239,7 +238,7 @@ public class AutoCardService implements AppService {
                     }
                 }
                 return value;
-            } catch (TesseractException e) {
+            } catch (Exception e) {
                 LogUtils.printMessage("验证码识别异常", e, LogUtils.Level.ERROR);
                 return null;
             }

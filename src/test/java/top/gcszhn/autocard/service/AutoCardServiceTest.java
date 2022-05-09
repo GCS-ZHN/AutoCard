@@ -40,7 +40,7 @@ public class AutoCardServiceTest extends AppTest {
     @Autowired
     DingTalkHookService dingTalkHookService;
     @After
-    public void afterTest() {
+    public void afterTest() throws Exception {
         autoCardService.close();
     }
     @Test
@@ -74,6 +74,7 @@ public class AutoCardServiceTest extends AppTest {
         String validCode = autoCardService.getCode(image);
         if (validCode != null) {
             ImageUtils.write(image, "png", new File("code/" + validCode + ".png"));
+            System.out.println(validCode);
         }
     }
 }

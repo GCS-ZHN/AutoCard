@@ -14,7 +14,6 @@ if [ -f "$targetDir.zip" ];then
 fi
 mkdir $targetDir
 cp target/autocard-$version.jar $targetDir
-cp target/autocard-$version.jar action/autocard.jar
 cp templete/shutdown.sh.temp $targetDir/shutdown.sh
 cp templete/startup.sh.temp $targetDir/startup.sh
 cp -R config $targetDir/config

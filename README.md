@@ -13,7 +13,7 @@
 
 ---
 ## 一、项目概述
-本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置，支持利用github action。支持钉钉和邮箱推送打卡结果。如果没有服务器资源，请跳至[三、基于github-action的使用](#三基于github-action的使用)。
+本项目为解决浙江大学每日重复的健康打卡而开发，在完成首次手动打卡后，可以自动进行定时打卡。并通过邮件形式提醒通知打卡结果。本项目使用spring-boot、quartz和httpclient开发，使用maven进行项目管理，编译版本为jdk-14.0.2。支持多账户配置，支持利用github action。支持钉钉和邮箱推送打卡结果。如果没有服务器资源，请跳至[三、基于github-action的使用](#三基于github-action的使用)。可以选择d4_ocr或者tesseract_ocr作为OCR引擎识别验证码。
 
 ## 二、基于自建平台的使用
 **STEP 1 用来跑程序的设备**
@@ -31,27 +31,7 @@
 |dmg              |MacOS                                   |
 |exe                |Win                                        |
 
-**STEP 3 安装tesseract-ocr**
-该项目基于tesseract-ocr做验证码识别，需要在系统环境中安装tesseract-ocr引擎，可以参考[tesseract-ocr主页](https://tesseract-ocr.github.io/tessdoc/Home.html)。安装配置完成可以正常使用`tesseract`命令。
-```
-(base) [admin@Sat May 07-22:06:17 autocard]$ tesseract
-Usage:
-  tesseract --help | --help-extra | --version
-  tesseract --list-langs
-  tesseract imagename outputbase [options...] [configfile...]
-
-OCR options:
-  -l LANG[+LANG]        Specify language(s) used for OCR.
-NOTE: These options must occur before any configfile.
-
-Single options:
-  --help                Show this help message.
-  --help-extra          Show extra help for advanced users.
-  --version             Show version information.
-  --list-langs          List available languages for tesseract engine.
-```
-
-**STEP 4 下载作者提供的发行版**
+**STEP 3 下载作者提供的发行版**
 
 在[gitee](https://gitee.com/GCSZHN/AutoCard/releases/)或[github](https://github.com/GCS-ZHN/AutoCard/releases)的项目发行版页面，下载最新的发行版（autocard-XXX.zip，XXX为版本号）。并解压。可以看到解压后目录结构如下
 ```txt
@@ -64,7 +44,7 @@ Single options:
 ------log4j2.xml                        ## 日志配置，不用修改
 ------tessdata/                         ## 放置OCR模型数据
 ```
-**STEP 5 修改application.json**
+**STEP 4 修改application.json**
 
 用任意文本编辑器打开config目录下的application.json，配置下列信息。
 ```json
@@ -117,6 +97,8 @@ Single options:
     "formvalidation": true,
     // 是否开启预览功能特性
     "enablepreview": false
+    // OCR引擎的选择，可选tesseract_ocr和d4_ocr
+    "ocr": "d4_ocr"
 }
 ```
 邮箱用于打卡的通知，默认使用浙大邮箱，否则需要`mail.smtp`和`mail.port`参数配置为指定第三方邮箱如QQ邮箱的配置。若不配置邮箱信息，将不会邮件提醒。
@@ -142,7 +124,7 @@ cron表达式是用于定时任务的经典表达式，该参数允许用户自�
 ```
 delay参数为true时，每次执行任务会随机延时0~1800秒，这样的好处在于每天打卡时间不固定。
 
-**STEP 6 运行程序**
+**STEP 5 运行程序**
 
 需要通过命令行来运行程序，在Windows下，常见的命令行是cmd和powershell，打开方式“WIN + R”，输入"cmd"或"powershell"，确定即可。linux服务器打开即是shell命令行页面（To小白：如何连接Linux服务器请自行百度一下，拥有服务器用户名、密码、IP、端口，通过ssh客户端访问）。
 
@@ -257,10 +239,16 @@ powershell build.ps1  ## windows
 1.  用上文提到的Fetch upstream手动完成此次更新(治标不治本)
 2.  修改`.github/workflows/schedule.yml`文件，将其中的`target_repo_token: ${{ secrets.GITHUB_TOKEN }}`使用的token（令牌）换成扩大权限的自定义token，详细介绍和自定义令牌方法参见[Github官方文档](https://docs.github.com/cn/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token)。配置新令牌的权限同[相关issue](https://github.com/aormsby/Fork-Sync-With-Upstream-action/issues/12)那样。然后将私人令牌作为前文一样的密钥设置，利用设置了一个MY_TOKEN的密钥，然后将上面的`GITHUB_TOKEN`替换为`MY_TOKEN`。
 
+- 缺失libtesseract.so共享库
+  
+在linux环境中，如果选择使用tesseract-ocr引擎，需要自己部属安装tesseract，相关教程可以参考[tesseract-ocr主页](https://tesseract-ocr.github.io/tessdoc/Home.html)。
+
 ## 七、注意
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
 ## 八、更新记录
+### v1.4.8
+集成支持dddd-ocr（d4-ocr）和tesseract-ocr两种OCR引擎，其中d4-ocr是基于开源项目[sml2h3/ddddocr](https://github.com/sml2h3/ddddocr)提供的预训练模型onnx文件，本人将其用java封装了，不用调用python程序。
 ### v1.4.7
 2022年5月7日，学校引入图片验证码，特发布此次更新支持验证码识别。同时修复了相关issue的BUG。
 ### v1.4.6

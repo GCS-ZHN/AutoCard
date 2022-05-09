@@ -97,4 +97,21 @@ public class ImageUtils {
             LogUtils.printMessage(null, e, LogUtils.Level.ERROR);
         }
     }
+
+    public static BufferedImage toGray(BufferedImage image) {
+        BufferedImage target = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        Graphics2D g2d = target.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+        return target;
+    }
+
+    public static BufferedImage toBinary(BufferedImage image) {
+        BufferedImage target = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
+        Graphics2D g2d = target.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+        return target;
+    }
+
 }

@@ -41,19 +41,33 @@ jobs:
            distribution: 'temurin'
            java-version: '17'
 
+      - name: "Setup maven"
+        uses: stCarolas/setup-maven@v4.3
+        with:
+            maven-version: 3.8.2
+
       - name: "Setup tesseract-ocr"
-        run: "sudo apt install tesseract-ocr -y && mv config/tessdata action/config/tessdata"
+        run: "sudo apt install tesseract-ocr -y"
+
+      - name: "Cache maven dependencies"
+        uses: actions/cache@v3
+        with:
+            key: autocard_${{  hashFiles('pom.xml') }}
+            path: "~/.m2/repository"
+
+      - name: "Compile source"
+        run: "mvn clean package spring-boot:repackage"
+
+      - name: "Configure file"
+        run: "rm -rf config && mv action/config config && mv target/autocard*jar autocard.jar"
       
       # 缓存信息，当缓存发生变化时，请修改key值
       - name: "Cache autocard cache file"
         uses: actions/cache@v3
         with: 
-          key: autocard_cache-${{ hashFiles('action/config/application.json') }}-${{ hashFiles('action/autocard.jar') }}-${{ secrets.AUTOCARD_CACHE_FLAG }}
-          path: "action/autocard_cache.json"
+          key: autocard_cache-${{ hashFiles('config/application.json') }}-${{ hashFiles('autocard.jar') }}-${{ secrets.AUTOCARD_CACHE_FLAG }}
+          path: "autocard_cache.json"
 
-      # 查看运行时目录
-      - name: "View workflow filesystem"
-        run: ls -R action
             
       # 执行打卡
       - name: "Run AutoCard"
@@ -63,4 +77,4 @@ jobs:
           AUTOCARD_DINGTALK_URL: ${{ secrets.AUTOCARD_DINGTALK_URL }}
           AUTOCARD_DINGTALK_SECRET: ${{ secrets.AUTOCARD_DINGTALK_SECRET }}
           AUTOCARD_MAX_TRIAL: ${{ secrets.AUTOCARD_MAX_TRIAL }}
-        run: cd action && java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard.jar --app.autoCard.immediate=true
+        run:  "java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard.jar --app.autoCard.immediate=true"

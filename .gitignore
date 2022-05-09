@@ -32,6 +32,7 @@ target/
 .factorypath
 .classpath
 .project
+.idea/
 
 # cache file
 *.cache
@@ -41,3 +42,4 @@ cache/
 hs_err_pid*
 test_*.properties
 code/
+autocard_cache.json
