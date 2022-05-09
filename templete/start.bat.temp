@@ -1,0 +1,5 @@
+:: 切换到对应盘
+e:
+:: 切换到对应jar文件所在文件夹的路径
+cd E:\autocard-1.4.7
+java -jar autocard-1.4.7.jar

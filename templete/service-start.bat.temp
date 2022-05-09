@@ -1,0 +1,3 @@
+:: 视你所使用的WinSW.NET版本而定
+WinSW.NET4.exe start
+pause

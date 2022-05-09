@@ -126,11 +126,12 @@ delay参数为true时，每次执行任务会随机延时0~1800秒，这样的�
 
 **STEP 5 运行程序**
 
-需要通过命令行来运行程序，在Windows下，常见的命令行是cmd和powershell，打开方式“WIN + R”，输入"cmd"或"powershell"，确定即可。linux服务器打开即是shell命令行页面（To小白：如何连接Linux服务器请自行百度一下，拥有服务器用户名、密码、IP、端口，通过ssh客户端访问）。
+可以通过命令行或者注册为系统服务的方式来运行程序。对于命令行方式，在Windows下，常见的命令行是cmd和powershell，打开方式“WIN + R”，输入"cmd"或"powershell"，确定即可。linux服务器打开即是shell命令行页面（To小白：如何连接Linux服务器请自行百度一下，拥有服务器用户名、密码、IP、端口，通过ssh客户端访问）。
 
 ```shell
 java -jar autocard-XXX.jar   # 方式一，在auotcard-XXX的解压目录下，直接通过java命令运行
 ....                         # 然后你会看到日志输出到屏幕，此方法仅适合不关闭命令行页面，在自己电脑跑
+....                         # 如果希望避免命令行输出，请继续看下面将程序运行注册为系统服务的方式
 
 
 bash startup.sh              # 方式二，运行上面说的shell脚本启动，但仅限于linux服务器。可以关闭服务器连接
@@ -142,6 +143,58 @@ bash startup.sh              # 方式二，运行上面说的shell脚本启动�
 通过方式一，运行正常可以看到下列日志输出屏幕。不论哪种方式，相同的程序日志会在`app.log`文件中看到。最后日志显示JVM running。（等到了打卡时间，日志会继续输出）
 
 ![方式一截图](templete/fig1.png)
+
+如果希望避免方式一中命令行的输出以及关闭命令行导致的程序停止运行，在Windows下可以将其注册为一个开机自启动的系统服务。接下来以位于`E:\autocard-1.4.7`路径下的`autocard-1.4.7.jar`和x64架构为例介绍具体细节，同时下文提到的所有脚本文件均可在项目的 `template` 文件夹中找到对应以`.temp`结尾的文件。
+
+- 根据自己电脑架构去[官方仓库](https://github.com/winsw/winsw/releases)下载WinSW.Net4.exe(x64)或WinSW.Net2.exe(x86)到`E:\autocard-1.4.7`
+
+- 安装[.Net Framework](https://dotnet.microsoft.com/en-us/download/dotnet-framework)
+
+- 创建执行具体任务的脚本`start.bat`:
+
+  ```bash
+  # windows的cd命令在切换位于不同盘的路径时需要先切换盘符
+  E:
+  cd E:\autocard-1.4.7
+  java -jar autocard-1.4.7.jar
+  ```
+
+- 在`E:\autocard_1.4.7`路径下创建一个和WinSW.Net4.xml(这里的文件名应当和你下载的WinSW.NetX.exe同名，X为4或2)，填写内容如下：
+
+  ```xml
+  <service>
+    <id>autocard_java</id>
+    <name>autocard_java</name>
+    <description>autocard_java</description>
+    <!--该服务将执行的批处理文件所在路径-->
+    <executable>start.bat</executable>
+    <log mode="reset"></log>
+    <!--jar文件所在文件夹的路径-->
+    <workingdirectory>E:\autocard-1.4.7</workingdirectory>
+  </service>
+  ```
+
+- 在`E:\autocard_1.4.7`路径下分别创建用于安装、启动、暂停、卸载服务的脚本`service-install.bat`，`service-start.bat`，`service-stop.bat`，`service-uninstall.bat`如下：
+
+  ```bash
+  #service-install.bat
+  WinSW.Net4.exe install
+  pause
+  
+  #service-start.bat
+  WinSW.Net4.exe start
+  pause
+  
+  #service-stop.bat
+  WinSW.Net4.exe stop
+  pause
+  
+  #service-uninstall.bat
+  WinSW.Net4.exe uninstall
+  pause
+  ```
+
+- 若要启动服务，请先通过`service-install.bat`安装服务，而后通过`service-start.bat`启动服务，程序日志会输出到同文件夹下的`app.log`中。如果希望暂停服务，请通过`service-stop.bat`暂停服务。如果希望卸载服务，请先暂停服务，而后通过`service-uninstall.bat`卸载服务。
 
 
 ## 三、基于github action的使用
@@ -241,6 +294,7 @@ powershell build.ps1  ## windows
 
 - 缺失libtesseract.so共享库
   
+
 在linux环境中，如果选择使用tesseract-ocr引擎，需要自己部属安装tesseract，相关教程可以参考[tesseract-ocr主页](https://tesseract-ocr.github.io/tessdoc/Home.html)。
 
 ## 七、注意
