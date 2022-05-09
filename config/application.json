@@ -25,5 +25,6 @@
         }
     ],
     "formvalidation": true,
-    "enablepreview": false
+    "enablepreview": false,
+    "orc": "d4_ocr"
 }
