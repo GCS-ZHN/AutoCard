@@ -1,0 +1,11 @@
+<!--该文件的文件名应当与你所用WinSW.Net版本相同-->
+<service>
+  <id>autocard_java</id>
+  <name>autocard_java</name>
+  <description>autocard_java</description>
+  <!--该服务将执行的批处理文件所在路径-->
+  <executable>start.bat</executable>
+  <log mode="reset"></log>
+  <!--jar文件所在文件夹的路径-->
+  <workingdirectory>E:\autocard-1.4.7</workingdirectory>
+</service>
