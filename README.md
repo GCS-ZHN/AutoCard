@@ -152,47 +152,47 @@ bash startup.sh              # 方式二，运行上面说的shell脚本启动�
 
 - 创建执行具体任务的脚本`start.bat`:
 
-  ```bash
-  # windows的cd命令在切换位于不同盘的路径时需要先切换盘符
-  E:
-  cd E:\autocard-1.4.7
-  java -jar autocard-1.4.7.jar
-  ```
+```bat
+# windows的cd命令在切换位于不同盘的路径时需要先切换盘符
+E:
+cd E:\autocard-1.4.7
+java -jar autocard-1.4.7.jar
+```
 
 - 在`E:\autocard_1.4.7`路径下创建一个和WinSW.Net4.xml(这里的文件名应当和你下载的WinSW.NetX.exe同名，X为4或2)，填写内容如下：
 
-  ```xml
-  <service>
-    <id>autocard_java</id>
-    <name>autocard_java</name>
-    <description>autocard_java</description>
-    <!--该服务将执行的批处理文件所在路径-->
-    <executable>start.bat</executable>
-    <log mode="reset"></log>
-    <!--jar文件所在文件夹的路径-->
-    <workingdirectory>E:\autocard-1.4.7</workingdirectory>
-  </service>
-  ```
+```xml
+<service>
+  <id>autocard_java</id>
+  <name>autocard_java</name>
+  <description>autocard_java</description>
+  <!--该服务将执行的批处理文件所在路径-->
+  <executable>start.bat</executable>
+  <log mode="reset"></log>
+  <!--jar文件所在文件夹的路径-->
+  <workingdirectory>E:\autocard-1.4.7</workingdirectory>
+</service>
+```
 
 - 在`E:\autocard_1.4.7`路径下分别创建用于安装、启动、暂停、卸载服务的脚本`service-install.bat`，`service-start.bat`，`service-stop.bat`，`service-uninstall.bat`如下：
 
-  ```bash
-  #service-install.bat
-  WinSW.Net4.exe install
-  pause
-  
-  #service-start.bat
-  WinSW.Net4.exe start
-  pause
-  
-  #service-stop.bat
-  WinSW.Net4.exe stop
-  pause
-  
-  #service-uninstall.bat
-  WinSW.Net4.exe uninstall
-  pause
-  ```
+```bat
+#service-install.bat
+WinSW.Net4.exe install
+pause
+
+#service-start.bat
+WinSW.Net4.exe start
+pause
+
+#service-stop.bat
+WinSW.Net4.exe stop
+pause
+
+#service-uninstall.bat
+WinSW.Net4.exe uninstall
+pause
+```
 
 - 若要启动服务，请先通过`service-install.bat`安装服务，而后通过`service-start.bat`启动服务，程序日志会输出到同文件夹下的`app.log`中。如果希望暂停服务，请通过`service-stop.bat`暂停服务。如果希望卸载服务，请先暂停服务，而后通过`service-uninstall.bat`卸载服务。
 
@@ -302,7 +302,7 @@ powershell build.ps1  ## windows
 
 ## 八、更新记录
 ### v1.4.8
-集成支持dddd-ocr（d4-ocr）和tesseract-ocr两种OCR引擎，其中d4-ocr是基于开源项目[sml2h3/ddddocr](https://github.com/sml2h3/ddddocr)提供的预训练模型onnx文件，本人将其用java封装了，不用调用python程序。
+集成支持dddd-ocr（d4-ocr）和tesseract-ocr两种OCR引擎，其中d4-ocr是基于开源项目[sml2h3/ddddocr](https://github.com/sml2h3/ddddocr)提供的预训练模型onnx文件，本人将其用java封装了，不用调用python程序。并修复了相关[issue](https://github.com/GCS-ZHN/AutoCard/issues/16)。
 ### v1.4.7
 2022年5月7日，学校引入图片验证码，特发布此次更新支持验证码识别。同时修复了相关issue的BUG。
 ### v1.4.6

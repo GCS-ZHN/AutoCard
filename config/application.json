@@ -14,17 +14,19 @@
             "cron":"0 0 0 * * ? *",
             "dingtalkurl": "https://oapi.dingtalk.com/robot/send?access_token=****",
             "dingtalksecret": "SEC****",
-            "delay":true
+            "delay":true,
+            "maxtrial": 3
         },
         {
             "username":"***",
             "password":"***",
             "mail":"***",
             "cron":"0 10 0 * * ? *",
-            "delay":true
+            "delay":true,
+            "maxtrial": 3
         }
     ],
     "formvalidation": true,
     "enablepreview": false,
-    "orc": "d4_ocr"
+    "ocr": "d4_ocr"
 }

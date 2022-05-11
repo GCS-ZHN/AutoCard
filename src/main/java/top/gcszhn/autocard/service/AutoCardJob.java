@@ -53,11 +53,16 @@ public class AutoCardJob implements Job {
         String mail = dataMap.getString("mail");
         String dingtalkURL = dataMap.getString("dingtalkurl");
         String dingtalkSecret = dataMap.getString("dingtalksecret");
-        int maxTrial = Optional.ofNullable(dataMap.getString("maxtrial"))
-            .map((String value)-> {
+        int maxTrial = Optional.ofNullable(dataMap.get("maxtrial"))
+            .map((Object value)-> {
                 try{
-                    if (value.equals("")) return DEFAULT_MAX_TRIAL;
-                    return Integer.parseInt(value);
+                    if (value instanceof Integer) return (int) value;
+                    if (value instanceof String) {
+                        if (value.equals("")) return DEFAULT_MAX_TRIAL;
+                        return Integer.parseInt((String) value);
+                    } else {
+                        throw new NumberFormatException();
+                    }
                 } catch (NumberFormatException e) {
                     LogUtils.printMessage("无效的整数格式", LogUtils.Level.ERROR);
                     return DEFAULT_MAX_TRIAL;
