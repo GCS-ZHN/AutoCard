@@ -69,7 +69,6 @@ public class AppConfig implements EnvironmentAware {
     /**默认OCR引擎 */
     private @Getter EngineType ocrEngine = EngineType.D4_OCR;
     public AppConfig() {
-        LogUtils.printMessage("Test mode is " + testMode, LogUtils.Level.DEBUG);
         try (FileInputStream fis = new FileInputStream(APP_CACHE)) {
             appCache = JSON.parseObject(new String(fis.readAllBytes(), APP_CHARSET));
             LogUtils.printMessage("缓存加载成功", LogUtils.Level.DEBUG);
@@ -113,6 +112,9 @@ public class AppConfig implements EnvironmentAware {
             String javaTmpDir = System.getProperty("java.io.tmpdir");
             if (javaTmpDir == null) {
                 javaTmpDir = ".";
+            }
+            if (testMode) {
+                LogUtils.printMessage("测试模式已开启");
             }
         } catch (Exception e) {
             LogUtils.printMessage("APP环境初始化失败", e, LogUtils.Level.ERROR);

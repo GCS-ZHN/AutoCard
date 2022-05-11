@@ -65,10 +65,9 @@ jobs:
       - name: "Cache autocard cache file"
         uses: actions/cache@v3
         with: 
-          key: autocard_cache-${{ hashFiles('config/application.json') }}-${{ hashFiles('autocard.jar') }}-${{ secrets.AUTOCARD_CACHE_FLAG }}
+          key: autocard_cache-${{ secrets.AUTOCARD_CACHE_FLAG }}
           path: "autocard_cache.json"
 
-            
       # 执行打卡
       - name: "Run AutoCard"
         env: 

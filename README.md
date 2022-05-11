@@ -301,6 +301,9 @@ powershell build.ps1  ## windows
 若打卡题目被更新或者你的任何信息情况有变化（如返校），请先手动打卡一次。本项目仅供学习参考。使用时请确保信息的正确性。滥用造成的后果请自行承担。
 
 ## 八、更新记录
+### v1.4.9
+- 修复相关[issue](https://github.com/GCS-ZHN/AutoCard/issues/17)，升级spring组件
+- 自动检测是否打卡，避免重复提交，如需进行提交测试，请设置`testmode: true`。
 ### v1.4.8
 集成支持dddd-ocr（d4-ocr）和tesseract-ocr两种OCR引擎，其中d4-ocr是基于开源项目[sml2h3/ddddocr](https://github.com/sml2h3/ddddocr)提供的预训练模型onnx文件，本人将其用java封装了，不用调用python程序。并修复了相关[issue](https://github.com/GCS-ZHN/AutoCard/issues/16)。
 ### v1.4.7

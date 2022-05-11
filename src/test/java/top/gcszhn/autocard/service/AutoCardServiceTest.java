@@ -57,9 +57,14 @@ public class AutoCardServiceTest extends AppTest {
         }
     }
     @Test
+    public void isSubmitTest() {
+        autoCardService.login(USERNAME, PASSWORD);
+        if(autoCardService.isOnline()) Assert.assertEquals(autoCardService.isSubmited(autoCardService.getPage()), true);
+    }
+    @Test
     public void getOldInfoTest() {
         autoCardService.login(USERNAME, PASSWORD);
-        System.out.println(autoCardService.getOldInfo());
+        System.out.println(autoCardService.getOldInfo(autoCardService.getPage()));
     }
     @Test
     public void submitReportTest() {

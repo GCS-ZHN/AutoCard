@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONObject;
 
 import lombok.Getter;
+import org.springframework.util.StringUtils;
 import top.gcszhn.autocard.AppConfig;
 import top.gcszhn.autocard.utils.DigestUtils;
 import top.gcszhn.autocard.utils.HttpDataPair;
@@ -83,7 +84,7 @@ public class AutoCardService implements AppService {
         try {
             online = client.login(username, password);
         } catch (Exception e) {
-            LogUtils.printMessage("用户登录失败", LogUtils.Level.ERROR);
+            LogUtils.printMessage(username + "登录失败", LogUtils.Level.ERROR);
         }
 
     }
@@ -145,12 +146,14 @@ public class AutoCardService implements AppService {
         }
         return false;
     }
+    public boolean isSubmited(String page) {
+        return StringUtils.hasText("hasFlag: '1'");
+    }
     /**
      * 用于提取已有提交信息
      * @return 已有提交信息组成的键值对列表
      */
-    public ArrayList<NameValuePair> getOldInfo() {
-        String page = getPage();
+    public ArrayList<NameValuePair> getOldInfo(String page) {
         if (page==null) return null;
         ArrayList<NameValuePair> res = new ArrayList<>();
         // 该部分模拟网页JS代码进行信息合并
@@ -261,14 +264,29 @@ public class AutoCardService implements AppService {
         StatusCode statusCode = new StatusCode();
         try {
             login(username, password);
-
-            int maxTrial = 20;
+            if (!isOnline()) {
+                statusCode.setStatus(-1);
+                statusCode.setMessage(username + "登录失败");
+                return statusCode;
+            }
+            JSONObject userInfo = client.getUserInfo();
+            String realName = userInfo!=null ? userInfo.getString("userName") : username;
+            if (realName == null) realName = username;
+            String page = getPage();
+            if (!appConfig.isTestMode() && isSubmited(page)) {
+                statusCode.setStatus(1);
+                statusCode.setMessage(realName+"您好，今日已经打卡了，请明天再来");
+                LogUtils.printMessage(statusCode.getMessage(), LogUtils.Level.ERROR);
+                return statusCode;
+            }
+            int validCodeMaxTrial = 20;
             JSONObject resp = null;
             LogUtils.Level level = null;
             int status = 3;
             NameValuePair codePair = null;
             String area = null;
-            ArrayList<NameValuePair> info = getOldInfo();
+
+            ArrayList<NameValuePair> info = getOldInfo(page);
             if (info==null) {
                 LogUtils.printMessage("打卡信息获取失败", LogUtils.Level.ERROR);
                 statusCode.setMessage(username+"的打卡信息获取失败，可能是打卡更新了或网络不稳定，请查看后台打卡日志输出");
@@ -282,10 +300,10 @@ public class AutoCardService implements AppService {
                     break;
                 }
             }
-            SAVE: while (maxTrial > 0) {
+            SAVE: while (validCodeMaxTrial > 0) {
 
-                while (maxTrial > 0) {
-                    maxTrial --;
+                while (validCodeMaxTrial > 0) {
+                    validCodeMaxTrial --;
                     String code = getCode();
                     if (code != null) {
                         if (codePair != null) info.remove(codePair);
@@ -293,7 +311,7 @@ public class AutoCardService implements AppService {
                         info.add(codePair);
                         break;
                     } else {
-                        LogUtils.printMessage("验证码识别错误，剩余机会：" + maxTrial, LogUtils.Level.ERROR);
+                        LogUtils.printMessage("验证码识别错误，剩余机会：" + validCodeMaxTrial, LogUtils.Level.ERROR);
                     }
                 }
 
@@ -310,8 +328,8 @@ public class AutoCardService implements AppService {
                 switch(status) {
                     case 0:{level= LogUtils.Level.INFO;break;}
                     case 1:{
-                        if (maxTrial > 0 && resp.getString("m").equals("验证码错误")) {
-                            LogUtils.printMessage("验证码识别错误，剩余机会：" + maxTrial, LogUtils.Level.ERROR);
+                        if (validCodeMaxTrial > 0 && resp.getString("m").equals("验证码错误")) {
+                            LogUtils.printMessage("验证码识别错误，剩余机会：" + validCodeMaxTrial, LogUtils.Level.ERROR);
                             Thread.sleep(2000);
                             continue SAVE;
                         }
@@ -323,9 +341,8 @@ public class AutoCardService implements AppService {
                 break;
             }
 
-            JSONObject userInfo = client.getUserInfo();
             String message = String.format("%s，你好，今日自动健康打卡状态：%s，打卡地区为：%s（如若区域不符，请次日手动打卡更改地址）",
-                userInfo == null || userInfo.getString("userName") == null? username: userInfo.getString("userName"), 
+                realName,
                 resp.getString("m"),
                 area);
             statusCode.setStatus(status);
@@ -359,7 +376,6 @@ public class AutoCardService implements AppService {
     public void close() {
         try {
             client.close();
-            System.out.println("AutoCardService stopped");
         } catch (Exception e) {
             e.printStackTrace();
         }
