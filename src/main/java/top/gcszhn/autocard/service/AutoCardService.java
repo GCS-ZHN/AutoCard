@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 import com.alibaba.fastjson.JSONObject;
 
 import lombok.Getter;
-import org.springframework.util.StringUtils;
 import top.gcszhn.autocard.AppConfig;
 import top.gcszhn.autocard.utils.DigestUtils;
 import top.gcszhn.autocard.utils.HttpDataPair;
@@ -147,7 +146,7 @@ public class AutoCardService implements AppService {
         return false;
     }
     public boolean isSubmited(String page) {
-        return StringUtils.hasText("hasFlag: '1'");
+        return page.contains("hasFlag: '1'");
     }
     /**
      * 用于提取已有提交信息

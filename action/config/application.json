@@ -3,5 +3,5 @@
     "formvalidation": true,
     "enablepreview": false,
     "ocr": "d4_ocr",
-    "testmode": true
+    "testmode": false
 }
