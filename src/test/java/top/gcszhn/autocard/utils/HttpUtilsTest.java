@@ -23,13 +23,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import top.gcszhn.autocard.AppTest;
 
 /**
  * HttpClientUtils的单元测试
  * @author Zhang.H.N
  * @version 1.0
  */
-public class HttpUtilsTest {
+public class HttpUtilsTest extends AppTest {
     HttpClientUtils client;
     @Before
     public void beforeTest() {
@@ -41,7 +42,9 @@ public class HttpUtilsTest {
     }
     @Test
     public void getTest() {
-        System.out.println(client.doGet("https://www.cc98.org/"));;
+        LogUtils.printMessage("开始");
+        System.out.println(client.doGet("https://www.google.com/"));
+        LogUtils.printMessage("结束");
     }
     @Test
     public void getWithParamTest() {

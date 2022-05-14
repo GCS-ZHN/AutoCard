@@ -91,9 +91,9 @@ public class HttpClientUtils implements Closeable {
                 .setCircularRedirectsAllowed(true)
                 .setMaxRedirects(maxRedirects)
                 .setRedirectsEnabled(redirectsEnabled)
-                .setConnectionRequestTimeout(20000)
-                .setSocketTimeout(20000)
-                .setConnectionRequestTimeout(10000)
+                .setConnectionRequestTimeout(15000)  // timeout for requesting connection from pool (ms)
+                .setConnectTimeout(15000)            // timeout for establishing connection to server (ms)
+                .setSocketTimeout(15000)             // timeout for reading data from server (ms)
                 .build();
             if (cookieStore==null) initCookieStore();
             httpClient = HttpClients.custom()
