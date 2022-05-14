@@ -5,9 +5,10 @@ on:
   # 当 提交到当前仓库时立即运行
   push:
     branches: [ main ]
+    
   schedule:
-    # 东八区09:00，约莫有延时10~20，看github服务器情况
-    - cron: '0 1 * * *'
+    # 东八区09:00，9:20，9:40尝试三次，触发不完全准时，可能延时半个到一个小时等。
+    - cron: '0/20 1 * * *'
   
   # 当star当前仓库时立即执行
   watch:
@@ -20,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       #上游同步
       - name: Sync with upstream
@@ -36,26 +37,16 @@ jobs:
 
       # 安装java环境
       - name: "Setup Java"
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
            distribution: 'temurin'
-           java-version: '17'
-
-      - name: "Setup maven"
-        uses: stCarolas/setup-maven@v4.3
-        with:
-            maven-version: 3.8.2
+           java-version: '11'
+           cache: "maven"
 
       - name: "Setup tesseract-ocr"
         run: "sudo apt install tesseract-ocr -y"
 
-      - name: "Cache maven dependencies"
-        uses: actions/cache@v3
-        with:
-            key: autocard_${{  hashFiles('pom.xml') }}
-            path: "~/.m2/repository"
-
-      - name: "Compile source"
+      - name: "Build with maven"
         run: "mvn clean package spring-boot:repackage"
 
       - name: "Configure file"
