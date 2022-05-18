@@ -7,8 +7,8 @@ on:
     branches: [ main ]
     
   schedule:
-    # 东八区09:00，9:20，9:40尝试三次，触发不完全准时，可能延时半个到一个小时等。
-    - cron: '0/20 1 * * *'
+    # UTC 01:00 和 UTC 04:00
+    - cron: '0 1,4 * * *'
   
   # 当star当前仓库时立即执行
   watch:
@@ -42,9 +42,6 @@ jobs:
            distribution: 'temurin'
            java-version: '11'
            cache: "maven"
-
-      - name: "Setup tesseract-ocr"
-        run: "sudo apt install tesseract-ocr -y"
 
       - name: "Build with maven"
         run: "mvn clean package spring-boot:repackage"

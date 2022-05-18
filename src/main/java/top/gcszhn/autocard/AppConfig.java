@@ -35,7 +35,6 @@ import org.springframework.core.env.Environment;
 import lombok.Getter;
 import top.gcszhn.autocard.service.MailService;
 import top.gcszhn.autocard.utils.LogUtils;
-import top.gcszhn.autocard.utils.ocr.EngineType;
 
 
 /**
@@ -47,6 +46,7 @@ import top.gcszhn.autocard.utils.ocr.EngineType;
 public class AppConfig implements EnvironmentAware {
     /**默认字符集 */
     public static final Charset APP_CHARSET = StandardCharsets.UTF_8;
+    /** 创建APP临时目录*/
     public static final File TMP_DIR = new File(System.getProperty("java.io.tmpdir") , "autocard");
     static {
         try {
@@ -66,8 +66,7 @@ public class AppConfig implements EnvironmentAware {
     private @Getter boolean testMode = false;
     /**是否启用预览特性 */
     private @Getter boolean enablePreview = false;
-    /**默认OCR引擎 */
-    private @Getter EngineType ocrEngine = EngineType.D4_OCR;
+    /** 加载APP配置文件*/
     public AppConfig() {
         try (FileInputStream fis = new FileInputStream(APP_CACHE)) {
             appCache = JSON.parseObject(new String(fis.readAllBytes(), APP_CHARSET));
@@ -86,12 +85,6 @@ public class AppConfig implements EnvironmentAware {
             loadJSONConfig(env.getProperty("app.autoCard.config"));
             testMode = appConfig.getBooleanValue("testmode");
             enablePreview = appConfig.getBooleanValue("enablepreview");
-            try {
-                ocrEngine = EngineType.valueOf(appConfig.getString("ocr").toUpperCase());
-                LogUtils.printMessage("OCR引擎为" + ocrEngine);
-            } catch (Exception e) {
-                LogUtils.printMessage("未配置有效的OCR引擎，使用默认OCR引擎" + ocrEngine);
-            }
             
             // 通过系统环境变量添加单个打卡用户
             

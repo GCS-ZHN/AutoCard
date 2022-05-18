@@ -15,9 +15,7 @@
  */
 package top.gcszhn.autocard.service;
 
-import net.sourceforge.tess4j.TesseractException;
 import top.gcszhn.autocard.AppTest;
-import top.gcszhn.autocard.utils.ImageUtils;
 import top.gcszhn.autocard.utils.StatusCode;
 
 import org.junit.After;
@@ -70,16 +68,5 @@ public class AutoCardServiceTest extends AppTest {
     public void submitReportTest() {
         StatusCode statusCode = autoCardService.submit(USERNAME, PASSWORD);
         Assert.assertNotEquals(statusCode.getStatus(), -1);
-    }
-    @Test
-    public void validCodeTest() throws TesseractException, InterruptedException {
-        autoCardService.login(USERNAME, PASSWORD);
-        BufferedImage image = autoCardService.getCodeImage();
-        Assert.assertNotNull(image);
-        String validCode = autoCardService.getCode(image);
-        if (validCode != null) {
-            ImageUtils.write(image, "png", new File("code/" + validCode + ".png"));
-            System.out.println(validCode);
-        }
     }
 }
