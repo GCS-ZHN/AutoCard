@@ -4,10 +4,10 @@
 
     <groupId>top.gcszhn</groupId>
     <artifactId>autocard</artifactId>
-    <version>1.4.9</version>
+    <version>1.4.10</version>
     <packaging>jar</packaging>
 
-    <name>Auto Heathy Report for Zhejiang University</name>
+    <name>Automatically Healthy Report for Zhejiang University</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -106,26 +106,6 @@
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
             <version>1.4.7</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
-        <dependency>
-            <groupId>net.java.dev.jna</groupId>
-            <artifactId>jna</artifactId>
-            <version>5.10.0</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
-        <dependency>
-            <groupId>net.sourceforge.tess4j</groupId>
-            <artifactId>tess4j</artifactId>
-            <version>5.1.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.microsoft.onnxruntime/onnxruntime -->
-        <dependency>
-            <groupId>com.microsoft.onnxruntime</groupId>
-            <artifactId>onnxruntime</artifactId>
-            <version>1.11.0</version>
         </dependency>
         <!--lombok插件-->
         <dependency>

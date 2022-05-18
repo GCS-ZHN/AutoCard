@@ -28,6 +28,5 @@
     ],
     "formvalidation": true,
     "enablepreview": false,
-    "testmode": false,
-    "ocr": "d4_ocr"
+    "testmode": false
 }
