@@ -21,7 +21,7 @@
             "username":"***",
             "password":"***",
             "mail":"***",
-            "cron":"0 10 0 * * ? *",
+            "cron":"0 8 0 * * ? *",
             "delay":true,
             "maxtrial": 3
         }
