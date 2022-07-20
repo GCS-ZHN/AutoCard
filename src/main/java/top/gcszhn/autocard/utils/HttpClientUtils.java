@@ -116,7 +116,7 @@ public class HttpClientUtils implements Closeable {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(
             new File(App.workDir, cookieFile)))) {
             cookieStore = (CookieStore) ois.readObject();
-            LogUtils.printMessage("Cookie loaded from cache...");
+            LogUtils.printMessage("Cookie loaded from cache", LogUtils.Level.DEBUG);
         } catch (Exception e) {
             cookieStore = new BasicCookieStore();
             LogUtils.printMessage(e.getMessage(), LogUtils.Level.DEBUG);

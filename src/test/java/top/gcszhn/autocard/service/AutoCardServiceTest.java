@@ -23,9 +23,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-
 /**
  * 打卡服务测试
  * @author Zhang.H.N
@@ -66,7 +63,7 @@ public class AutoCardServiceTest extends AppTest {
     }
     @Test
     public void submitReportTest() {
-        StatusCode statusCode = autoCardService.submit(USERNAME, PASSWORD);
+        StatusCode statusCode = autoCardService.submit(USERNAME, PASSWORD, NICKNAME);
         Assert.assertNotEquals(statusCode.getStatus(), -1);
     }
 }

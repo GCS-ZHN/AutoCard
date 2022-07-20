@@ -10,6 +10,7 @@
         {
             "username":"***",
             "password":"***",
+            "nickname":"张三",
             "mail":"***",
             "cron":"0 0 0 * * ? *",
             "dingtalkurl": "https://oapi.dingtalk.com/robot/send?access_token=****",
@@ -20,6 +21,7 @@
         {
             "username":"***",
             "password":"***",
+            "nickname":"李四",
             "mail":"***",
             "cron":"0 10 0 * * ? *",
             "delay":true,

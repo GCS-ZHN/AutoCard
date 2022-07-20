@@ -35,6 +35,8 @@ public abstract class AppTest {
     protected static final String PAYLOAD_URL;
     protected static final String SECRET;
     protected static final String PHONE;
+
+    protected static final String NICKNAME;
     static {
         ResourceBundle bundle = ResourceBundle.getBundle("test_config");
         USERNAME = bundle.getString("username");
@@ -43,5 +45,6 @@ public abstract class AppTest {
         PAYLOAD_URL = bundle.getString("dingtalkurl");
         SECRET = bundle.getString("dingtalksecret");
         PHONE = bundle.getString("telephone");
+        NICKNAME = bundle.getString("nickname");
     }
 }

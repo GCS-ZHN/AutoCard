@@ -42,7 +42,7 @@ public class DingTalkHookServiceTest extends AppTest {
 
     @Test
     public void sendMarkdownTest() {
-        Assert.assertEquals(service.sendMarkdown(encrypt_url, "杭州天气", "### 杭州天气 \n> 9度，西北风1级，空气良89，相对温度73%\n> ![screenshot](https://img.alicdn.com/tfs/TB1NwmBEL9TBuNjy1zbXXXpepXa-2400-1218.png)\n> ###### 10点20分发布 [天气](https://www.dingalk.com) \n", true).getStatus(), 0);
+        Assert.assertEquals(0, service.sendMarkdown(encrypt_url, "杭州天气", "### 杭州天气 \n> 9度，西北风1级，空气良89，相对温度73%\n> ![screenshot](https://img.alicdn.com/tfs/TB1NwmBEL9TBuNjy1zbXXXpepXa-2400-1218.png)\n> ###### 10点20分发布 [天气](https://www.dingalk.com) \n", true).getStatus());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class DingTalkHookServiceTest extends AppTest {
             String photo = clientService.getUserPhoto();
             StatusCode statusCode = service.sendMarkdown(encrypt_url, USERNAME, "### "+USERNAME+"\n你好\n![img](data:image/gif;base64,"+photo+")");
             System.out.println(statusCode.getMessage());
-            Assert.assertEquals(statusCode.getStatus(), 0);
+            Assert.assertEquals(0, statusCode.getStatus());
         }
     }
 }
