@@ -64,4 +64,5 @@ jobs:
           AUTOCARD_DINGTALK_URL: ${{ secrets.AUTOCARD_DINGTALK_URL }}
           AUTOCARD_DINGTALK_SECRET: ${{ secrets.AUTOCARD_DINGTALK_SECRET }}
           AUTOCARD_MAX_TRIAL: ${{ secrets.AUTOCARD_MAX_TRIAL }}
+          AUTOCARD_NICKNAME: ${{ secrets.AUTOCARD_NICKNAME }}
         run:  "java  --add-opens java.base/java.lang=ALL-UNNAMED -jar autocard.jar --app.autoCard.immediate=true"
