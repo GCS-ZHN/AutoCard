@@ -8,7 +8,7 @@ on:
     
   schedule:
     # UTC 01:00 和 UTC 04:00
-    - cron: '50 13 * * *'
+    - cron: '55 13 * * *'
   
   # 当star当前仓库时立即执行
   watch:
