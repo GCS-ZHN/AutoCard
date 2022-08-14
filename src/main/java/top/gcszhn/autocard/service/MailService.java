@@ -82,6 +82,8 @@ public class MailService implements AppService {
         if (smtpPort!=null) {
             props.setProperty("mail.smtp.port", smtpPort);
         }
+        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         if (username==null|password==null) {
             LogUtils.printMessage("Mail user not set");
             setServiceAvailable(false);
