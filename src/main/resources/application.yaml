@@ -41,6 +41,7 @@ mail:
             enable: true
         ssl:
             enable: true
+            protocols: TLSv1.2
         auth: true
     imap:
         class: com.sun.mail.imap.IMAPSSLStore
