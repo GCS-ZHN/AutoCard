@@ -1,0 +1,35 @@
+name: release
+
+# 任务触发
+on:
+  # 当 提交到当前仓库时立即运行
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  # 自动打卡任务
+  pypi:
+    # 使用ubuntu作为运行的OS
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Setup Java"
+        uses: actions/setup-java@v3
+        with:
+           distribution: 'temurin'
+           java-version: '11'
+           cache: "maven"
+
+      - name: "Build with maven"
+        run: "bash build.sh"
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release/*.zip
+          draft: true
+
