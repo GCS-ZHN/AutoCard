@@ -4,7 +4,7 @@
 
     <groupId>top.gcszhn</groupId>
     <artifactId>autocard</artifactId>
-    <version>1.4.11</version>
+    <version>1.4.12</version>
     <packaging>jar</packaging>
 
     <name>Automatically Healthy Report for Zhejiang University</name>
