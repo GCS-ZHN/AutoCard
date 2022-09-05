@@ -7,7 +7,6 @@
 ![Spring](https://img.shields.io/badge/Springboot-1.5.9-blue.svg)
 [![GitHub stars](https://img.shields.io/github/stars/GCS-ZHN/AutoCard.svg?style=social&label=Stars)](https://github.com/GCS-ZHN/AutoCard/)
 [![GitHub forks](https://img.shields.io/github/forks/GCS-ZHN/AutoCard.svg?style=social&label=Fork)](https://github.com/GCS-ZHN/AutoCard/)
-[![Gitee star](https://gitee.com/GCSZHN/AutoCard/badge/star.svg?theme=white)](https://gitee.com/GCSZHN/AutoCard/)
 
 </div>
 
