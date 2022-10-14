@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright © 2022 <a href="mailto:zhang.h.n@foxmail.com">Zhang.H.N</a>.
  * Release under GPL License
  */
