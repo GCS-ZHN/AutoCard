@@ -5,8 +5,6 @@
 package top.gcszhn.autocard.service;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -18,7 +16,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import top.gcszhn.autocard.AppTest;
@@ -30,6 +30,9 @@ import top.gcszhn.autocard.utils.ImageUtils;
  * @version 1.0
  */
 public class ZJUClientServiceTest extends AppTest {
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Autowired
     ZJUClientService client;
     //ZJUClient是prototpye的bean，IOC容器不负责销毁
@@ -42,8 +45,8 @@ public class ZJUClientServiceTest extends AppTest {
      */
     @Test
     public void loginTest() {
-        Assert.assertEquals(true, client.login(USERNAME, PASSWORD));
         Assert.assertEquals(false, client.login("dadadada", "dadad"));
+        Assert.assertEquals(true, client.login(USERNAME, PASSWORD));
     }
     @Test
     public void getUserInfoTest() {
@@ -52,26 +55,26 @@ public class ZJUClientServiceTest extends AppTest {
         }
     }
     @Test
-    public void getUserPhotoTest() {
+    public void getUserPhotoTest() throws IOException {
         if (client.login(USERNAME, PASSWORD)) {
             String photo = client.getUserPhoto();
             if (photo != null) {
-                ImageUtils.write(photo, new File(USERNAME+ "-raw.gif"));
+                ImageUtils.write(photo, folder.newFile(USERNAME+ "-raw.gif"));
                 BufferedImage image = ImageUtils.toImage(photo);
-                ImageUtils.write(image, "gif", new File(USERNAME+ "-t.gif"));
+                ImageUtils.write(image, "gif", folder.newFile(USERNAME+ "-t.gif"));
                 image = ImageUtils.resize(image, 75, 100);
-                ImageUtils.write(image, "gif", new File(USERNAME+ "-resize.gif"));
+                ImageUtils.write(image, "gif", folder.newFile(USERNAME+ "-resize.gif"));
             }
         }
     }
     
     @Test
-    public void loginCourseTest() throws FileNotFoundException {
+    public void loginCourseTest() throws IOException {
         String userUrl="https://courses.zju.edu.cn/user/index";
         String coursesUrl="https://courses.zju.edu.cn/api/users/%s/courses";
         String memberUrl="https://courses.zju.edu.cn/api/course/%d/enrollments?fields=user(email,name,user_no,department(name))";
         ArrayList<String> peoples = new ArrayList<>();
-        PrintWriter pw = new PrintWriter("studentInfo.csv");
+        PrintWriter pw = new PrintWriter(folder.newFile("studentInfo.csv"));
         pw.println("\"id\",\"name\",\"department\",\"email\"");
         if (client.login(USERNAME, PASSWORD)) {
             String userIndexPage=client.doGetText(userUrl);
@@ -89,7 +92,6 @@ public class ZJUClientServiceTest extends AppTest {
                 for (Object userObj: members) {
                     JSONObject user = ((JSONObject) userObj).getJSONObject("user");
                     String studentId = user.getString("user_no");
-                    //System.out.println(name+"\t"+studentId+"\t"+email+"\t"+department);
                     if (peoples.contains(studentId)) {
                         continue;
                     }

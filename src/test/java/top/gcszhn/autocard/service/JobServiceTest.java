@@ -33,19 +33,8 @@ public class JobServiceTest extends AppTest {
         dataMap = new JobDataMap();
         dataMap.put("username", USERNAME);
         dataMap.put("password", PASSWORD);
-//        dataMap.put("mail", MAIL);
-//        dataMap.put("dingtalkurl", PAYLOAD_URL);
-//        dataMap.put("dingtalksecret", SECRET);
     }
 
-    @Test
-    public void cronTest() throws InterruptedException {
-       synchronized(jobService) {
-        jobService.addJob(AutoCardJob.class, null, dataMap);
-        jobService.start();
-        jobService.wait(50000); 
-       }
-    }
     @Test
     public void executeTest() {
         try {

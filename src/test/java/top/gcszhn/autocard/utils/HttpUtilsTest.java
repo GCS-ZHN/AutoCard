@@ -32,7 +32,7 @@ public class HttpUtilsTest extends AppTest {
     @Test
     public void getTest() {
         LogUtils.printMessage("开始");
-        System.out.println(client.doGet("https://www.google.com/"));
+        System.out.println(client.doGet("https://www.baidu.com/"));
         LogUtils.printMessage("结束");
     }
     @Test
